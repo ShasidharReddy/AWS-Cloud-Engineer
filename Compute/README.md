@@ -31,16 +31,11 @@
 %%{init: {'theme':'base','themeVariables':{'primaryColor':'#FF9900','primaryTextColor':'#232F3E','primaryBorderColor':'#232F3E','lineColor':'#232F3E','secondaryColor':'#232F3E','tertiaryColor':'#FFFFFF','background':'#FFFFFF'}}}%%
 flowchart TD
 A["Workload"] --> B{"Primary need?"}
-B --> C["General purpose
-t3 / m6i"]
-B --> D["Compute optimized
-c6i"]
-B --> E["Memory optimized
-r6i"]
-B --> F["Storage optimized
-i3"]
-B --> G["Accelerated
-p4d / g5"]
+B --> C["General purpose<br/>t3 / m6i"]
+B --> D["Compute optimized<br/>c6i"]
+B --> E["Memory optimized<br/>r6i"]
+B --> F["Storage optimized<br/>i3"]
+B --> G["Accelerated<br/>p4d / g5"]
 ```
 
 ### Explanation
