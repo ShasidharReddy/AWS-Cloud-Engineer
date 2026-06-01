@@ -129,12 +129,10 @@ Use an Internet Gateway for VPC-wide internet routing and NAT Gateways so privat
 ```mermaid
 flowchart LR
     Internet[Internet]:::awsBlue --> IGW[Internet Gateway]:::awsOrange
-    IGW --> PublicRT["Public RT
-0.0.0.0/0 -> IGW"]:::awsBlue
+    IGW --> PublicRT["Public RT<br/>0.0.0.0/0 → IGW"]:::awsBlue
     PublicRT --> PublicSubnet["Public Subnet"]:::awsOrange
     PublicSubnet --> NAT["NAT Gateway + EIP"]:::awsOrange
-    PrivateRT["Private RT
-0.0.0.0/0 -> NAT"]:::awsBlue --> PrivateSubnet["Private Subnet"]:::awsDark
+    PrivateRT["Private RT<br/>0.0.0.0/0 → NAT"]:::awsBlue --> PrivateSubnet["Private Subnet"]:::awsDark
     PrivateSubnet --> App["Private Workload"]:::awsDark
     App --> NAT
     classDef awsOrange fill:#FF9900,color:#232F3E
@@ -281,12 +279,9 @@ Security groups are stateful ENI-level firewalls that control inbound and outbou
 
 ```mermaid
 flowchart LR
-    Client[Clients]:::awsBlue --> ALB["ALB SG
-allow 443"]:::awsOrange
-    ALB --> App["App SG
-allow 8080 from ALB SG"]:::awsDark
-    App --> DB["DB SG
-allow 5432 from App SG"]:::awsDark
+    Client[Clients]:::awsBlue --> ALB["ALB SG<br/>allow 443"]:::awsOrange
+    ALB --> App["App SG<br/>allow 8080 from ALB SG"]:::awsDark
+    App --> DB["DB SG<br/>allow 5432 from App SG"]:::awsDark
     Chain["SG chaining by group reference"]:::awsBlue
     ALB --> Chain --> App
     classDef awsOrange fill:#FF9900,color:#232F3E
@@ -356,10 +351,7 @@ NACLs are stateless subnet firewalls that evaluate numbered allow and deny entri
 
 ```mermaid
 flowchart LR
-    Internet[Internet]:::awsBlue --> NACL["NACL
-90 deny
-100 allow 443
-110 allow ephemeral"]:::awsOrange
+    Internet[Internet]:::awsBlue --> NACL["NACL<br/>90 deny<br/>100 allow 443<br/>110 allow ephemeral"]:::awsOrange
     NACL --> Subnet[Subnet]:::awsBlue
     Subnet --> Workload[Workload]:::awsDark
     Note["Stateless: allow return path too"]:::awsBlue
@@ -723,10 +715,8 @@ VPC endpoints give private workloads private access to AWS services through Gate
 ```mermaid
 flowchart LR
     Workload["Private Workload"]:::awsDark --> RT["Route Table"]:::awsBlue
-    RT --> GWEP["Gateway Endpoint
-S3/DynamoDB"]:::awsOrange
-    Workload --> IFEP["Interface Endpoint
-ENIs + SGs"]:::awsOrange
+    RT --> GWEP["Gateway Endpoint<br/>S3/DynamoDB"]:::awsOrange
+    Workload --> IFEP["Interface Endpoint<br/>ENIs + SGs"]:::awsOrange
     IFEP --> Services["AWS APIs / PrivateLink services"]:::awsBlue
     classDef awsOrange fill:#FF9900,color:#232F3E
     classDef awsDark fill:#232F3E,color:#fff
@@ -865,14 +855,10 @@ Choose ALB, NLB, GWLB, or legacy CLB based on protocol awareness, scale, target 
 ```mermaid
 flowchart LR
     Client[Clients]:::awsBlue --> Choice["LB Choice"]:::awsOrange
-    Choice --> ALB["ALB
-HTTP/HTTPS"]:::awsBlue
-    Choice --> NLB["NLB
-TCP/UDP/TLS"]:::awsBlue
-    Choice --> GWLB["GWLB
-Appliance Insertion"]:::awsBlue
-    Choice --> CLB["CLB
-Legacy"]:::awsBlue
+    Choice --> ALB["ALB<br/>HTTP/HTTPS"]:::awsBlue
+    Choice --> NLB["NLB<br/>TCP/UDP/TLS"]:::awsBlue
+    Choice --> GWLB["GWLB<br/>Appliance Insertion"]:::awsBlue
+    Choice --> CLB["CLB<br/>Legacy"]:::awsBlue
     ALB --> TG1[Target Group]:::awsDark
     NLB --> TG2[Target Group]:::awsDark
     GWLB --> TG3[Appliance Target Group]:::awsDark
@@ -1017,8 +1003,7 @@ CloudFront delivers cached and dynamic content from edge locations using distrib
 flowchart LR
     Viewer[Viewers]:::awsBlue --> Edge["CloudFront Edges"]:::awsOrange
     Edge --> Behaviors["Behaviors + Cache Policy"]:::awsBlue
-    Behaviors --> S3["S3 Origin
-OAC/OAI"]:::awsDark
+    Behaviors --> S3["S3 Origin<br/>OAC/OAI"]:::awsDark
     Behaviors --> ALB["ALB Origin"]:::awsDark
     WAF["WAF / TLS / Geo restrictions"]:::awsBlue --> Edge
     classDef awsOrange fill:#FF9900,color:#232F3E
