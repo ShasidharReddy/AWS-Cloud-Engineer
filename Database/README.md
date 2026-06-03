@@ -61,6 +61,7 @@ flowchart TD
 12. [AWS DMS](#aws-dms-database-migration-service)
 13. [RDS Proxy](#rds-proxy)
 14. [Cross-Service Operational Checklist](#cross-service-operational-checklist)
+15. [Database Migration Scenarios Deep Dive](./database-migration-scenarios.md)
 
 ---
 

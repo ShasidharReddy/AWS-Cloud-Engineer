@@ -56,6 +56,7 @@ flowchart LR
 - [Appendix A: Migration Wave Checklist](#appendix-a)
 - [Appendix B: Cutover and Rollback Checklist](#appendix-b)
 - [Appendix C: Tagging, Naming, and Governance Standards](#appendix-c)
+- [Disaster Recovery Production Scenarios Deep Dive](./disaster-recovery-prod-scenarios.md)
 
 ## Core Principles
 
