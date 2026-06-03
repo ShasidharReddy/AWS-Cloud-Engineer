@@ -1923,3 +1923,13 @@ aws fms disassociate-admin-account
 - Hardening checkpoint 78: Validate that the control owner, logging path, and exception process are defined for this security domain.
 - Hardening checkpoint 79: Validate that the control owner, logging path, and exception process are defined for this security domain.
 - Hardening checkpoint 80: Validate that the control owner, logging path, and exception process are defined for this security domain.
+
+---
+
+## 📚 Official Documentation
+
+- [AWS Identity and Access Management](https://docs.aws.amazon.com/iam/)
+- [AWS Key Management Service](https://docs.aws.amazon.com/kms/)
+- [AWS WAF](https://docs.aws.amazon.com/waf/)
+- [Amazon GuardDuty](https://docs.aws.amazon.com/guardduty/)
+- [AWS Organizations](https://docs.aws.amazon.com/organizations/)

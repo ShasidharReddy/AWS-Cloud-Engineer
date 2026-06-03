@@ -99,24 +99,20 @@ flowchart LR
 ### Invocation flow
 ```mermaid
 %%{init: {'theme': 'base', 'themeVariables': { 'fontFamily': 'Inter, Arial', 'primaryColor': '#FF9900', 'primaryTextColor': '#232F3E', 'primaryBorderColor': '#146EB4', 'lineColor': '#146EB4', 'secondaryColor': '#EAF3FF', 'tertiaryColor': '#FFFFFF', 'clusterBkg': '#F7F7F7', 'clusterBorder': '#146EB4' }}}%%
-sequenceDiagram
-    participant Client
-    participant Invoke as Invoker
-    participant Alias as Lambda Alias
-    participant Exec as Execution Environment
-    participant Dest as Destination or DLQ
-    Client->>Invoke: Send event
-    Invoke->>Alias: Invoke alias or function ARN
-    Alias->>Exec: Route to published version
-    Exec->>Exec: Init code outside handler
-    Exec->>Exec: Run handler(event, context)
-    alt Success
-        Exec-->>Client: Return response
-        Exec->>Dest: Success destination optional
-    else Failure
-        Exec-->>Client: Error or retry signal
-        Exec->>Dest: Failure destination optional
-    end
+flowchart LR
+    Client[Client] --> Invoke[Invoker]
+    Invoke --> Alias[Lambda Alias]
+    Alias --> Init[Init code outside handler]
+    Init --> Run[Run handler(event, context)]
+    Run --> Outcome{Invocation outcome}
+    Outcome -->|Success| Response[Return response]
+    Outcome -->|Success destination optional| SuccessDest[Success destination or DLQ]
+    Outcome -->|Failure| Error[Error or retry signal]
+    Outcome -->|Failure destination optional| FailureDest[Failure destination or DLQ]
+    classDef aws fill:#FF9900,color:#232F3E,stroke:#146EB4,stroke-width:1.5px;
+    classDef support fill:#EAF3FF,color:#232F3E,stroke:#146EB4,stroke-width:1px;
+    class Invoke,Alias,Run,Outcome aws;
+    class Client,Init,Response,SuccessDest,Error,FailureDest support;
 ```
 
 ### Explanation
@@ -270,24 +266,22 @@ flowchart LR
 ### Request path
 ```mermaid
 %%{init: {'theme': 'base', 'themeVariables': { 'fontFamily': 'Inter, Arial', 'primaryColor': '#FF9900', 'primaryTextColor': '#232F3E', 'primaryBorderColor': '#146EB4', 'lineColor': '#146EB4', 'secondaryColor': '#EAF3FF', 'tertiaryColor': '#FFFFFF', 'clusterBkg': '#F7F7F7', 'clusterBorder': '#146EB4' }}}%%
-sequenceDiagram
-    participant U as User
-    participant GW as API Gateway
-    participant Auth as Authorizer
-    participant Int as Integration
-    participant Cache as API Cache
-    U->>GW: HTTPS request
-    GW->>Auth: Authorize optional
-    alt Cache hit
-        GW->>Cache: Read cached response
-        Cache-->>GW: Cached payload
-        GW-->>U: Response
-    else Cache miss
-        GW->>Int: Transform request and invoke backend
-        Int-->>GW: Backend response
-        GW->>GW: Transform response and apply throttling rules
-        GW-->>U: Response
-    end
+flowchart LR
+    User[User] --> Gateway[API Gateway]
+    Gateway --> Authorizer[Authorizer optional]
+    Authorizer --> CacheDecision{Cached response available}
+    CacheDecision -->|Yes| Cache[API Cache]
+    Cache --> CachedPayload[Cached payload]
+    CachedPayload --> Response[Response]
+    CacheDecision -->|No| Integration[Backend integration]
+    Integration --> BackendResponse[Backend response]
+    BackendResponse --> Transform[Response transform and throttling]
+    Transform --> Response
+    Response --> User
+    classDef aws fill:#FF9900,color:#232F3E,stroke:#146EB4,stroke-width:1.5px;
+    classDef support fill:#EAF3FF,color:#232F3E,stroke:#146EB4,stroke-width:1px;
+    class Gateway,Authorizer,Cache,Integration,Transform,CacheDecision aws;
+    class User,CachedPayload,BackendResponse,Response support;
 ```
 
 ### Explanation
@@ -431,20 +425,18 @@ flowchart LR
 ### Event routing flow
 ```mermaid
 %%{init: {'theme': 'base', 'themeVariables': { 'fontFamily': 'Inter, Arial', 'primaryColor': '#FF9900', 'primaryTextColor': '#232F3E', 'primaryBorderColor': '#146EB4', 'lineColor': '#146EB4', 'secondaryColor': '#EAF3FF', 'tertiaryColor': '#FFFFFF', 'clusterBkg': '#F7F7F7', 'clusterBorder': '#146EB4' }}}%%
-sequenceDiagram
-    participant App as Application
-    participant Bus as EventBridge Bus
-    participant Rule as Rule
-    participant Target as Target
-    participant Archive as Archive
-    App->>Bus: PutEvents
-    Bus->>Rule: Match event pattern
-    alt Rule matches
-        Rule->>Target: Invoke target with input transform
-        Bus->>Archive: Store event if archive enabled
-    else No match
-        Bus-->>App: Event accepted but no target invoked
-    end
+flowchart LR
+    Application[Application] --> Bus[EventBridge Bus]
+    Bus --> Rule[Event pattern rule]
+    Rule --> Match{Rule matches event}
+    Match -->|Yes| Target[Target with input transform]
+    Match -->|Yes and archive enabled| Archive[Archive event]
+    Match -->|No| Accepted[Event accepted without target invocation]
+    Accepted --> Application
+    classDef aws fill:#FF9900,color:#232F3E,stroke:#146EB4,stroke-width:1.5px;
+    classDef support fill:#EAF3FF,color:#232F3E,stroke:#146EB4,stroke-width:1px;
+    class Bus,Rule,Target,Archive,Match aws;
+    class Application,Accepted support;
 ```
 
 ### Explanation
@@ -558,33 +550,31 @@ flowchart LR
     P --> W[Wait]
     M --> W
     W --> T[Task]
-    T --> E[End]
+    T --> Done[Workflow complete]
     classDef aws fill:#FF9900,color:#232F3E,stroke:#146EB4,stroke-width:1.5px;
     classDef support fill:#EAF3FF,color:#232F3E,stroke:#146EB4,stroke-width:1px;
     class A,C,P,M,W,T aws;
-    class S,E support;
+    class S,Done support;
 ```
 
 ### Workflow execution flow
 ```mermaid
 %%{init: {'theme': 'base', 'themeVariables': { 'fontFamily': 'Inter, Arial', 'primaryColor': '#FF9900', 'primaryTextColor': '#232F3E', 'primaryBorderColor': '#146EB4', 'lineColor': '#146EB4', 'secondaryColor': '#EAF3FF', 'tertiaryColor': '#FFFFFF', 'clusterBkg': '#F7F7F7', 'clusterBorder': '#146EB4' }}}%%
-sequenceDiagram
-    participant Caller
-    participant SF as Step Functions
-    participant Task1 as Service Integration
-    participant Task2 as Lambda
-    Caller->>SF: StartExecution
-    SF->>Task1: Run first task
-    Task1-->>SF: Result or error
-    alt Success path
-        SF->>Task2: Invoke next task
-        Task2-->>SF: Result
-        SF-->>Caller: Execution succeeds
-    else Failure path
-        SF->>SF: Retry based on policy
-        SF->>SF: Catch and branch to fallback state
-        SF-->>Caller: Execution handled or failed
-    end
+flowchart LR
+    Caller[Caller] --> SF[Step Functions]
+    SF --> Task1[Service integration]
+    Task1 --> Result{First task result}
+    Result -->|Success| Task2[Invoke Lambda]
+    Task2 --> Success[Execution succeeds]
+    Success --> Caller
+    Result -->|Failure| Retry[Retry based on policy]
+    Retry --> Catch[Catch and branch to fallback state]
+    Catch --> Handled[Execution handled or failed]
+    Handled --> Caller
+    classDef aws fill:#FF9900,color:#232F3E,stroke:#146EB4,stroke-width:1.5px;
+    classDef support fill:#EAF3FF,color:#232F3E,stroke:#146EB4,stroke-width:1px;
+    class SF,Task1,Task2,Result,Retry,Catch aws;
+    class Caller,Success,Handled support;
 ```
 
 ### Explanation
@@ -741,23 +731,21 @@ flowchart LR
 ### Polling and batch flow
 ```mermaid
 %%{init: {'theme': 'base', 'themeVariables': { 'fontFamily': 'Inter, Arial', 'primaryColor': '#FF9900', 'primaryTextColor': '#232F3E', 'primaryBorderColor': '#146EB4', 'lineColor': '#146EB4', 'secondaryColor': '#EAF3FF', 'tertiaryColor': '#FFFFFF', 'clusterBkg': '#F7F7F7', 'clusterBorder': '#146EB4' }}}%%
-sequenceDiagram
-    participant SQS
-    participant ESM as Event Source Mapping
-    participant Lambda
-    participant DLQ
-    SQS->>ESM: Messages available
-    ESM->>Lambda: Invoke with batch
-    alt All succeed
-        Lambda-->>ESM: Success
-        ESM->>SQS: Delete batch messages
-    else Some fail with partial batch response
-        Lambda-->>ESM: Return failed item IDs
-        ESM->>SQS: Delete successful messages only
-    else Batch repeatedly fails
-        ESM->>SQS: Visibility timeout expires and retry occurs
-        SQS->>DLQ: Move after max receive count
-    end
+flowchart LR
+    SQS[SQS queue] --> ESM[Event Source Mapping]
+    ESM --> Lambda[Lambda]
+    Lambda --> Outcome{Batch outcome}
+    Outcome -->|All succeed| DeleteAll[Delete batch messages]
+    DeleteAll --> SQS
+    Outcome -->|Partial batch response| FailedIds[Return failed item IDs]
+    FailedIds --> DeleteSome[Delete successful messages only]
+    DeleteSome --> SQS
+    Outcome -->|Repeated failures| Retry[Visibility timeout expires and retry occurs]
+    Retry --> DLQ[Move to DLQ after max receive count]
+    classDef aws fill:#FF9900,color:#232F3E,stroke:#146EB4,stroke-width:1.5px;
+    classDef support fill:#EAF3FF,color:#232F3E,stroke:#146EB4,stroke-width:1px;
+    class SQS,ESM,Lambda,DLQ,Outcome aws;
+    class DeleteAll,FailedIds,DeleteSome,Retry support;
 ```
 
 ### Explanation
@@ -871,19 +859,17 @@ flowchart LR
 ### Fan-out flow
 ```mermaid
 %%{init: {'theme': 'base', 'themeVariables': { 'fontFamily': 'Inter, Arial', 'primaryColor': '#FF9900', 'primaryTextColor': '#232F3E', 'primaryBorderColor': '#146EB4', 'lineColor': '#146EB4', 'secondaryColor': '#EAF3FF', 'tertiaryColor': '#FFFFFF', 'clusterBkg': '#F7F7F7', 'clusterBorder': '#146EB4' }}}%%
-sequenceDiagram
-    participant App
-    participant SNS
-    participant SubA as Lambda A
-    participant SubB as Lambda B
-    App->>SNS: Publish message
-    SNS->>SNS: Evaluate subscription filters
-    alt Filter matches
-        SNS->>SubA: Deliver notification
-    else Filter does not match
-        SNS-->>SubA: Skip delivery
-    end
-    SNS->>SubB: Deliver to other matching subscribers
+flowchart LR
+    App[Application] --> SNS[SNS topic]
+    SNS --> Filters[Evaluate subscription filters]
+    Filters --> Match{Filter matches Lambda A}
+    Match -->|Yes| SubA[Deliver to Lambda A]
+    Match -->|No| SkipA[Skip Lambda A delivery]
+    Filters --> SubB[Deliver to other matching subscribers]
+    classDef aws fill:#FF9900,color:#232F3E,stroke:#146EB4,stroke-width:1.5px;
+    classDef support fill:#EAF3FF,color:#232F3E,stroke:#146EB4,stroke-width:1px;
+    class SNS,Filters,Match,SubA,SubB aws;
+    class App,SkipA support;
 ```
 
 ### Explanation
@@ -994,20 +980,18 @@ flowchart LR
 ### Stream processing flow
 ```mermaid
 %%{init: {'theme': 'base', 'themeVariables': { 'fontFamily': 'Inter, Arial', 'primaryColor': '#FF9900', 'primaryTextColor': '#232F3E', 'primaryBorderColor': '#146EB4', 'lineColor': '#146EB4', 'secondaryColor': '#EAF3FF', 'tertiaryColor': '#FFFFFF', 'clusterBkg': '#F7F7F7', 'clusterBorder': '#146EB4' }}}%%
-sequenceDiagram
-    participant Table as DynamoDB Table
-    participant Stream as DynamoDB Stream
-    participant ESM as Event Source Mapping
-    participant Lambda
-    Table->>Stream: INSERT or MODIFY or REMOVE record
-    Stream->>ESM: New stream records
-    ESM->>Lambda: Invoke with batch
-    alt Success
-        Lambda-->>ESM: Batch succeeds
-    else Failure with bisect on error
-        ESM->>ESM: Split batch and retry smaller units
-        ESM->>Lambda: Reinvoke
-    end
+flowchart LR
+    Table[DynamoDB table] --> Stream[DynamoDB Stream]
+    Stream --> ESM[Event Source Mapping]
+    ESM --> Lambda[Lambda]
+    Lambda --> Outcome{Batch result}
+    Outcome -->|Success| Success[Batch succeeds]
+    Outcome -->|Failure with bisect on error| Split[Split batch and retry smaller units]
+    Split --> Reinvoke[Reinvoke Lambda]
+    classDef aws fill:#FF9900,color:#232F3E,stroke:#146EB4,stroke-width:1.5px;
+    classDef support fill:#EAF3FF,color:#232F3E,stroke:#146EB4,stroke-width:1px;
+    class Table,Stream,ESM,Lambda,Outcome aws;
+    class Success,Split,Reinvoke support;
 ```
 
 ### Explanation
@@ -2082,3 +2066,12 @@ aws budgets create-budget   --account-id <account-id>   --budget file://budget.j
 - Prefer managed integrations over glue code when the service already provides the capability.
 - Review serverless designs periodically because workload shape changes over time.
 
+---
+
+## 📚 Official Documentation
+
+- [AWS Lambda](https://docs.aws.amazon.com/lambda/)
+- [Amazon API Gateway](https://docs.aws.amazon.com/apigateway/)
+- [AWS Step Functions](https://docs.aws.amazon.com/step-functions/)
+- [Amazon EventBridge](https://docs.aws.amazon.com/eventbridge/)
+- [Amazon Cognito](https://docs.aws.amazon.com/cognito/)

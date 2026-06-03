@@ -1894,3 +1894,12 @@ EKS Cluster: eks-prod-billing-use1
 - Which dashboards, logs, and metrics will confirm optimization success?
 - What post-migration actions remain after optimization completes?
 
+---
+
+## 📚 Official Documentation
+
+- [AWS Migration Hub](https://docs.aws.amazon.com/migrationhub/)
+- [AWS Application Migration Service](https://docs.aws.amazon.com/mgn/)
+- [AWS Database Migration Service](https://docs.aws.amazon.com/dms/)
+- [AWS Snow Family](https://docs.aws.amazon.com/snowball/)
+- [AWS Migration Evaluator](https://docs.aws.amazon.com/migrationhub-strategy/latest/userguide/what-is-migration-evaluator.html)

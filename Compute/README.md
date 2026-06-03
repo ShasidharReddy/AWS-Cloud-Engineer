@@ -1697,3 +1697,13 @@ aws ec2 describe-images --owners self --query 'reverse(sort_by(Images,&CreationD
 ## Closing Notes
 
 AWS compute design is strongest when the family, purchasing model, storage pattern, scaling policy, security controls, and image automation all reinforce each other. Build for replacement, measure real demand, and optimize continuously.
+
+---
+
+## 📚 Official Documentation
+
+- [Amazon EC2](https://docs.aws.amazon.com/ec2/)
+- [Amazon EC2 Auto Scaling](https://docs.aws.amazon.com/autoscaling/ec2/)
+- [Elastic Load Balancing](https://docs.aws.amazon.com/elasticloadbalancing/)
+- [Amazon EBS](https://docs.aws.amazon.com/ebs/)
+- [Amazon EC2 Image Builder](https://docs.aws.amazon.com/imagebuilder/)

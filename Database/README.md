@@ -1969,3 +1969,12 @@ aws logs describe-log-groups --max-items 20
 - Build observability, security, and recovery into the first deployment, not the postmortem.
 - For migrations, test cutover timing and rollback steps as rigorously as the steady-state design.
 
+---
+
+## 📚 Official Documentation
+
+- [Amazon RDS](https://docs.aws.amazon.com/rds/)
+- [Amazon DynamoDB](https://docs.aws.amazon.com/dynamodb/)
+- [Amazon Redshift](https://docs.aws.amazon.com/redshift/)
+- [Amazon ElastiCache](https://docs.aws.amazon.com/AmazonElastiCache/)
+- [AWS DMS](https://docs.aws.amazon.com/dms/)

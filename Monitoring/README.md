@@ -1521,3 +1521,13 @@ LIMIT 100;
 - EventBridge is the glue that turns observability from passive monitoring into active operational response.
 - AWS Health and Trusted Advisor add platform context and hygiene signals that improve resilience planning.
 - A mature observability stack is measured not by how much telemetry it stores, but by how quickly it helps teams detect, understand, and resolve problems.
+
+---
+
+## 📚 Official Documentation
+
+- [Amazon CloudWatch](https://docs.aws.amazon.com/cloudwatch/)
+- [AWS CloudTrail](https://docs.aws.amazon.com/cloudtrail/)
+- [AWS X-Ray](https://docs.aws.amazon.com/xray/)
+- [Amazon EventBridge](https://docs.aws.amazon.com/eventbridge/)
+- [AWS Systems Manager](https://docs.aws.amazon.com/systems-manager/)

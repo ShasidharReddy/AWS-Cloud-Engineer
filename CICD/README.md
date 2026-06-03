@@ -1975,3 +1975,13 @@ Focus first on artifact identity, permissions, and environment-specific configur
 | Rollback | Tested, automated, and observable rollback path |
 | Drift | Scheduled detection for infra and cluster config |
 | Ownership | Tags and documented service boundaries |
+
+---
+
+## 📚 Official Documentation
+
+- [AWS CodePipeline](https://docs.aws.amazon.com/codepipeline/)
+- [AWS CodeBuild](https://docs.aws.amazon.com/codebuild/)
+- [AWS CodeDeploy](https://docs.aws.amazon.com/codedeploy/)
+- [AWS CloudFormation](https://docs.aws.amazon.com/cloudformation/)
+- [AWS CDK](https://docs.aws.amazon.com/cdk/)
