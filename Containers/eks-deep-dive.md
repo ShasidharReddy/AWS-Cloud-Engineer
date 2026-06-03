@@ -941,21 +941,16 @@ kubectl get machines -A
 ### Mermaid Diagram
 
 ```mermaid
-sequenceDiagram
-    participant User
-    participant ALB as Load Balancer
-    participant SVC as Kubernetes Service
-    participant POD as Pod
-    participant OBS as Observability Stack
-    User->>ALB: Request
-    ALB->>SVC: Forward to target group
-    SVC->>POD: Route to ready endpoint
-    alt Healthy
-        POD-->>User: 200 response
-    else Failure
-        POD-->>OBS: Emit errors, logs, events
-        OBS-->>User: Investigation clues
-    end
+flowchart LR
+    User[User] --> ALB[Load Balancer]
+    ALB --> SVC[Kubernetes Service]
+    SVC --> POD[Pod]
+    POD --> Health{Pod healthy}
+    Health -->|Yes| Success[200 response]
+    Success --> User
+    Health -->|No| Observability[Observability stack]
+    Observability --> Clues[Errors, logs, events]
+    Clues --> User
 ```
 
 ### Overview

@@ -1860,3 +1860,13 @@ aws kms list-keys
 - Favor evidence-based operations over assumptions.
 - Review this checklist quarterly with platform, security, and SRE stakeholders.
 - Tie checklist items to observable signals wherever possible.
+
+---
+
+## 📚 Official Documentation
+
+- [Amazon EKS](https://docs.aws.amazon.com/eks/)
+- [Amazon ECS](https://docs.aws.amazon.com/ecs/)
+- [Amazon ECR](https://docs.aws.amazon.com/ecr/)
+- [AWS Fargate](https://docs.aws.amazon.com/AmazonECS/latest/developerguide/AWS_Fargate.html)
+- [AWS App Runner](https://docs.aws.amazon.com/apprunner/)

@@ -1357,3 +1357,13 @@ aws route53 list-hosted-zones --output table
 aws elbv2 describe-load-balancers --query "LoadBalancers[].{Name:LoadBalancerName,Type:Type,Scheme:Scheme,State:State.Code,DNS:DNSName}" --output table
 aws ec2 describe-vpc-endpoints --query "VpcEndpoints[].{Id:VpcEndpointId,Type:VpcEndpointType,Service:ServiceName,Vpc:VpcId,State:State}" --output table
 ```
+
+---
+
+## 📚 Official Documentation
+
+- [Amazon VPC](https://docs.aws.amazon.com/vpc/)
+- [Amazon Route 53](https://docs.aws.amazon.com/route53/)
+- [Amazon CloudFront](https://docs.aws.amazon.com/AmazonCloudFront/)
+- [AWS Direct Connect](https://docs.aws.amazon.com/directconnect/)
+- [Elastic Load Balancing](https://docs.aws.amazon.com/elasticloadbalancing/)

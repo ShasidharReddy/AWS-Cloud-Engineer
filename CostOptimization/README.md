@@ -2422,3 +2422,13 @@ aws s3api list-buckets \
 | P3 | Well-Architected quarterly reviews | Continuous improvement |
 
 This README is intended to serve as both a learning guide and an implementation runbook for AWS cost optimization initiatives.
+
+---
+
+## 📚 Official Documentation
+
+- [AWS Cost Management](https://docs.aws.amazon.com/cost-management/)
+- [AWS Cost Explorer](https://docs.aws.amazon.com/cost-management/latest/userguide/ce-what-is.html)
+- [AWS Budgets](https://docs.aws.amazon.com/cost-management/latest/userguide/budgets-managing-costs.html)
+- [Savings Plans](https://docs.aws.amazon.com/savingsplans/)
+- [Well-Architected Cost Optimization Pillar](https://docs.aws.amazon.com/wellarchitected/latest/cost-optimization-pillar/welcome.html)

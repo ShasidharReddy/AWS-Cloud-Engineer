@@ -234,3 +234,20 @@ This repo includes **Mermaid flow diagrams** that render directly on GitHub — 
 - All guides include practical `aws` CLI commands — replace placeholder values before running.
 - Each guide includes Mermaid diagrams, best practices, and comparison tables.
 - Guides are for **learning and reference** purposes — review before running in production.
+
+---
+
+## 📚 Official Documentation
+
+- [Compute / EC2](https://docs.aws.amazon.com/ec2/)
+- [Networking / VPC](https://docs.aws.amazon.com/vpc/)
+- [Storage / S3](https://docs.aws.amazon.com/s3/)
+- [Serverless / Lambda](https://docs.aws.amazon.com/lambda/)
+- [Containers / EKS](https://docs.aws.amazon.com/eks/)
+- [Load Balancer](https://docs.aws.amazon.com/elasticloadbalancing/)
+- [Data Pipeline / Kinesis](https://docs.aws.amazon.com/kinesis/)
+- [Monitoring / CloudWatch](https://docs.aws.amazon.com/cloudwatch/)
+- [IAM / Security](https://docs.aws.amazon.com/iam/)
+- [Database Migration Service](https://docs.aws.amazon.com/dms/)
+- [Architecture / Well-Architected](https://docs.aws.amazon.com/wellarchitected/)
+- [Terraform AWS Provider](https://registry.terraform.io/providers/hashicorp/aws/latest/docs)

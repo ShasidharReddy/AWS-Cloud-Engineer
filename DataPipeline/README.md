@@ -283,22 +283,20 @@ flowchart LR
 
 ```mermaid
 %%{init: {"theme":"base","themeVariables":{"primaryColor":"#FF9900","primaryTextColor":"#232F3E","primaryBorderColor":"#232F3E","lineColor":"#146EB4","secondaryColor":"#FFF5E6","tertiaryColor":"#E8F4FD","fontFamily":"Arial"}}}%%
-sequenceDiagram
-  autonumber
-  participant P as Producer
-  participant Q as SQS Queue
-  participant C as Consumer
-  participant D as DLQ
-  P->>Q: SendMessage
-  C->>Q: ReceiveMessage(long polling)
-  Q-->>C: Message + receipt handle
-  Note over Q,C: Visibility timeout starts
-  alt Processing succeeds
-    C->>Q: DeleteMessage
-  else Processing fails repeatedly
-    Q-->>Q: Increment receive count
-    Q->>D: Redrive to DLQ
-  end
+flowchart LR
+  Producer[Producer] --> Queue[SQS Queue]
+  Queue --> Consumer[Consumer long polling]
+  Consumer --> Receipt[Message plus receipt handle]
+  Receipt --> Visibility[Visibility timeout starts]
+  Visibility --> Outcome{Processing outcome}
+  Outcome -->|Succeeds| Delete[DeleteMessage]
+  Delete --> Queue
+  Outcome -->|Fails repeatedly| Retries[Increment receive count]
+  Retries --> DLQ[Redrive to DLQ]
+  classDef aws fill:#FF9900,stroke:#232F3E,color:#FFFFFF,stroke-width:2px;
+  classDef data fill:#E8F4FD,stroke:#146EB4,color:#232F3E,stroke-width:1.5px;
+  class Queue,Consumer,DLQ,Outcome aws;
+  class Producer,Receipt,Visibility,Delete,Retries data;
 ```
 
 ### Detailed notes
@@ -1291,31 +1289,27 @@ flowchart LR
   T3 --> P
   P --> M[Map: Process Partitions]
   M --> W[Wait / Poll]
-  W --> E[End]
+  W --> Done[Workflow complete]
   classDef aws fill:#FF9900,stroke:#232F3E,color:#FFFFFF,stroke-width:2px;
-  class S,T1,C,T2,T3,P,M,W,E aws;
+  class S,T1,C,T2,T3,P,M,W,Done aws;
 ```
 
 ### Mermaid diagram: message flow
 
 ```mermaid
 %%{init: {"theme":"base","themeVariables":{"primaryColor":"#FF9900","primaryTextColor":"#232F3E","primaryBorderColor":"#232F3E","lineColor":"#146EB4","secondaryColor":"#FFF5E6","tertiaryColor":"#E8F4FD","fontFamily":"Arial"}}}%%
-sequenceDiagram
-  autonumber
-  participant Caller as Caller
-  participant SFN as Step Functions
-  participant Glue as Glue Job
-  participant SNS as SNS Topic
-  participant Ops as Operator
-  Caller->>SFN: StartExecution
-  SFN->>Glue: StartJobRun
-  alt Job succeeds
-    Glue-->>SFN: Success status
-    SFN->>SNS: Publish completion event
-  else Job fails
-    Glue-->>SFN: Failure
-    SFN->>Ops: Retry / Catch path notification
-  end
+flowchart LR
+  Caller[Caller] --> SFN[Step Functions]
+  SFN --> Glue[Glue Job]
+  Glue --> Outcome{Job outcome}
+  Outcome -->|Succeeds| Success[Success status]
+  Success --> SNS[SNS completion event]
+  Outcome -->|Fails| Failure[Failure status]
+  Failure --> Ops[Retry or Catch path notification]
+  classDef aws fill:#FF9900,stroke:#232F3E,color:#FFFFFF,stroke-width:2px;
+  classDef data fill:#E8F4FD,stroke:#146EB4,color:#232F3E,stroke-width:1.5px;
+  class SFN,Glue,SNS,Ops,Outcome aws;
+  class Caller,Success,Failure data;
 ```
 
 ### Detailed notes
@@ -1435,23 +1429,22 @@ flowchart LR
 
 ```mermaid
 %%{init: {"theme":"base","themeVariables":{"primaryColor":"#FF9900","primaryTextColor":"#232F3E","primaryBorderColor":"#232F3E","lineColor":"#146EB4","secondaryColor":"#FFF5E6","tertiaryColor":"#E8F4FD","fontFamily":"Arial"}}}%%
-sequenceDiagram
-  autonumber
-  participant Author as BI Author
-  participant QS as QuickSight
-  participant Src as Athena/Redshift
-  participant Reader as Dashboard Reader
-  Author->>QS: Create dataset and analysis
-  QS->>Src: Import or direct-query source
-  QS-->>QS: Build visuals and dashboard
-  Reader->>QS: Open dashboard
-  alt SPICE mode
-    QS-->>Reader: Render from cached SPICE data
-  else Direct query mode
-    QS->>Src: Run live query
-    Src-->>QS: Query result
-    QS-->>Reader: Render live dashboard
-  end
+flowchart LR
+  Author[BI Author] --> QS[QuickSight]
+  QS --> Source[Athena or Redshift]
+  Source --> Build[Build visuals and dashboard]
+  Reader[Dashboard Reader] --> Mode{Dashboard query mode}
+  Build --> Mode
+  Mode -->|SPICE| Spice[Render from cached SPICE data]
+  Mode -->|Direct query| LiveQuery[Run live query]
+  LiveQuery --> Result[Query result]
+  Result --> LiveRender[Render live dashboard]
+  Spice --> Reader
+  LiveRender --> Reader
+  classDef aws fill:#FF9900,stroke:#232F3E,color:#FFFFFF,stroke-width:2px;
+  classDef data fill:#E8F4FD,stroke:#146EB4,color:#232F3E,stroke-width:1.5px;
+  class QS,Source,Mode aws;
+  class Author,Build,Reader,Spice,LiveQuery,Result,LiveRender data;
 ```
 
 ### Detailed notes
@@ -2185,3 +2178,13 @@ aws sns publish \
 3. Add Kinesis, SQS, SNS, or MSK for streaming and event-driven ingestion.
 4. Add Step Functions for orchestration maturity and Lake Formation for governance maturity.
 5. Add EMR or advanced Glue patterns when workloads need custom big data processing.
+
+---
+
+## 📚 Official Documentation
+
+- [Amazon Kinesis](https://docs.aws.amazon.com/kinesis/)
+- [Amazon SQS](https://docs.aws.amazon.com/AWSSimpleQueueService/)
+- [Amazon SNS](https://docs.aws.amazon.com/sns/)
+- [AWS Glue](https://docs.aws.amazon.com/glue/)
+- [Amazon Athena](https://docs.aws.amazon.com/athena/)

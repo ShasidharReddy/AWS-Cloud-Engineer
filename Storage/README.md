@@ -1587,3 +1587,13 @@ aws backup list-backup-plans
 - **Version ID**: Identifier for a specific object version in S3.
 - **Versioning**: S3 feature that stores multiple versions of the same object key.
 - **VPC Endpoint**: Private connectivity path from a VPC to an AWS service such as S3.
+
+---
+
+## 📚 Official Documentation
+
+- [Amazon S3](https://docs.aws.amazon.com/s3/)
+- [Amazon EBS](https://docs.aws.amazon.com/ebs/)
+- [Amazon EFS](https://docs.aws.amazon.com/efs/)
+- [Amazon FSx](https://docs.aws.amazon.com/fsx/)
+- [AWS Backup](https://docs.aws.amazon.com/aws-backup/)

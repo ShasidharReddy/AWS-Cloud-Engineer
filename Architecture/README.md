@@ -964,27 +964,21 @@ Serverless request paths are easiest to reason about as sequences of control and
 
 ```mermaid
 %%{init: {'theme':'base','themeVariables': {'primaryColor':'#FF9900','primaryTextColor':'#232F3E','primaryBorderColor':'#232F3E','secondaryColor':'#232F3E','secondaryTextColor':'#FFFFFF','tertiaryColor':'#527FFF','tertiaryTextColor':'#FFFFFF','lineColor':'#527FFF'}}}%%
-sequenceDiagram
-    autonumber
-    participant C as Client
-    participant APIGW as API Gateway
-    participant Auth as Authorizer or IAM
-    participant L as Lambda Function
-    participant DDB as DynamoDB
-    participant RDS as RDS Proxy / RDS
-    C->>APIGW: HTTPS request
-    APIGW->>Auth: Authenticate and authorize
-    Auth-->>APIGW: Allow or deny
-    APIGW->>L: Invoke handler with event
-    alt NoSQL path
-        L->>DDB: Read or write item
-        DDB-->>L: Response
-    else Relational path
-        L->>RDS: Query through proxy or direct connection
-        RDS-->>L: Result set
-    end
-    L-->>APIGW: JSON response
-    APIGW-->>C: HTTP response
+flowchart LR
+    Client[Client] --> APIGW[API Gateway]
+    APIGW --> Auth[Authorizer or IAM]
+    Auth --> Lambda[Lambda Function]
+    Lambda --> DataPath{Selected data path}
+    DataPath -->|NoSQL| DDB[DynamoDB]
+    DataPath -->|Relational| RDS[RDS Proxy or RDS]
+    DDB --> Json[JSON response]
+    RDS --> Json
+    Json --> Client
+    classDef aws fill:#FF9900,color:#232F3E,stroke:#232F3E;
+    classDef dark fill:#232F3E,color:#fff,stroke:#232F3E;
+    classDef blue fill:#527FFF,color:#fff,stroke:#232F3E;
+    class APIGW,Auth,Lambda,DataPath,DDB,RDS aws;
+    class Client,Json blue;
 ```
 
 ### What this diagram shows
@@ -2184,3 +2178,10 @@ graph LR
 - AWS Control Tower or landing-zone patterns
 
 ---
+
+## 📚 Official Documentation
+
+- [AWS Architecture Center](https://aws.amazon.com/architecture/)
+- [AWS Well-Architected Framework](https://docs.aws.amazon.com/wellarchitected/)
+- [AWS Global Infrastructure](https://aws.amazon.com/about-aws/global-infrastructure/)
+- [AWS Cloud Adoption Framework](https://docs.aws.amazon.com/whitepapers/latest/aws-caf-introduction/welcome.html)
