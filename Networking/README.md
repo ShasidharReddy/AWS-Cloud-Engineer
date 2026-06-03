@@ -2,6 +2,42 @@
 
 A practical AWS networking reference that combines architecture guidance, Mermaid diagrams, AWS CLI examples, and best practices for day-to-day cloud engineering.
 
+## Animated Workflow Overview
+
+```mermaid
+flowchart LR
+    Client[Client request]:::entry --> DNS[Route 53 lookup]:::edge
+    DNS --> CDN[CloudFront edge]:::edge
+    CDN --> ALB[Application Load Balancer]:::service
+    subgraph VPC_Flow [VPC packet flow]
+        ALB --> Pub[Public subnet listener]:::service
+        Pub --> SG{Security group allows?}:::decision
+        SG -- No --> Drop[Drop packet]:::risk
+        SG -- Yes --> App[Private subnet target]:::service
+        App --> NACL{NACL route valid?}:::decision
+        NACL -- No --> Block[Block at subnet boundary]:::risk
+        NACL -- Yes --> Data[Database or internal service]:::data
+    end
+    subgraph Return_Path [Response and scale path]
+        Data --> App
+        App --> Metrics[Flow logs + ALB metrics]:::ops
+        Metrics --> Scale{Need more capacity?}:::decision
+        Scale -- Yes --> Auto[Add targets / tune routes]:::ops
+        Auto --> ALB
+        Scale -- No --> Response[Return response to client]:::success
+    end
+    classDef entry fill:#232F3E,color:#ffffff,stroke:#232F3E,stroke-width:2px;
+    classDef edge fill:#DBEAFE,color:#1E3A8A,stroke:#2563EB,stroke-width:1.5px;
+    classDef service fill:#FFEDD5,color:#7C2D12,stroke:#F97316,stroke-width:1.5px;
+    classDef decision fill:#FEF3C7,color:#92400E,stroke:#F59E0B,stroke-width:1.5px;
+    classDef data fill:#DCFCE7,color:#14532D,stroke:#22C55E,stroke-width:1.5px;
+    classDef ops fill:#EDE9FE,color:#4C1D95,stroke:#7C3AED,stroke-width:1.5px;
+    classDef success fill:#D1FAE5,color:#065F46,stroke:#10B981,stroke-width:1.5px;
+    classDef risk fill:#FCE7F3,color:#9D174D,stroke:#EC4899,stroke-width:1.5px;
+```
+
+---
+
 ## Coverage
 
 - VPC design and subnet architecture.

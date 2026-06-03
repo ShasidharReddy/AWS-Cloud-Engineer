@@ -4,6 +4,38 @@ This document is a comprehensive field guide for core AWS IAM and security servi
 
 > Mermaid color palette used throughout: `fill:#FF9900,color:#232F3E`, `fill:#232F3E,color:#fff`, `fill:#DD344C,color:#fff`
 
+## Animated Workflow Overview
+
+```mermaid
+flowchart TD
+    A[User, app, or workload]:::entry --> B[Authenticate with IAM / federation]:::identity
+    B --> C[Receive principal context]:::identity
+    C --> D[Evaluate identity policy]:::policy
+    D --> E[Evaluate resource policy]:::policy
+    E --> F[Apply SCP, permission boundary, and session policy]:::policy
+    F --> G{Explicit deny found?}:::decision
+    G -- Yes --> H[Reject request and log event]:::risk
+    G -- No --> I{Allowed action on resource?}:::decision
+    I -- No --> H
+    I -- Yes --> J[Call target AWS resource]:::resource
+    J --> K[Encrypt / inspect / monitor]:::control
+    K --> L[CloudTrail + Security Hub findings]:::control
+    L --> M{Drift or threat detected?}:::decision
+    M -- Yes --> N[Remediate access and rotate secrets]:::risk
+    N --> D
+    M -- No --> O[Grant least-privilege access]:::success
+    classDef entry fill:#232F3E,color:#ffffff,stroke:#232F3E,stroke-width:2px;
+    classDef identity fill:#DBEAFE,color:#1E3A8A,stroke:#2563EB,stroke-width:1.5px;
+    classDef policy fill:#FFEDD5,color:#7C2D12,stroke:#F97316,stroke-width:1.5px;
+    classDef decision fill:#FEF3C7,color:#92400E,stroke:#F59E0B,stroke-width:1.5px;
+    classDef resource fill:#DCFCE7,color:#14532D,stroke:#22C55E,stroke-width:1.5px;
+    classDef control fill:#EDE9FE,color:#4C1D95,stroke:#7C3AED,stroke-width:1.5px;
+    classDef success fill:#D1FAE5,color:#065F46,stroke:#10B981,stroke-width:1.5px;
+    classDef risk fill:#FCE7F3,color:#9D174D,stroke:#EC4899,stroke-width:1.5px;
+```
+
+---
+
 ## Table of Contents
 
 1. [IAM Overview](#1-iam-overview)

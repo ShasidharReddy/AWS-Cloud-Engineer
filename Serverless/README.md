@@ -4,6 +4,40 @@ A comprehensive field guide for designing, deploying, operating, and troubleshoo
 
 This document is intentionally long-form so it can be used as a learning guide, implementation reference, and interview revision sheet.
 
+## Animated Workflow Overview
+
+```mermaid
+flowchart TD
+    A[Event source]:::entry --> B{API, stream, or object event?}:::decision
+    B -- API --> C[API Gateway]:::ingest
+    B -- Event --> D[EventBridge / SQS / SNS]:::ingest
+    B -- Object --> E[S3 / DynamoDB stream]:::ingest
+    C --> F[Lambda function]:::compute
+    D --> F
+    E --> F
+    subgraph Execution [Lambda execution path]
+        F --> G[Read config, secrets, and context]:::compute
+        G --> H{Function succeeds?}:::decision
+        H -- No --> I[Retry / DLQ / on-failure destination]:::risk
+        I --> J[Observe and remediate]:::ops
+        H -- Yes --> K[Call downstream service]:::service
+    end
+    K --> L[DynamoDB / RDS / Step Functions]:::service
+    L --> M[Emit logs, metrics, traces]:::ops
+    M --> N[Scale per event demand]:::ops
+    N --> O[Deliver response or async outcome]:::success
+    classDef entry fill:#232F3E,color:#ffffff,stroke:#232F3E,stroke-width:2px;
+    classDef decision fill:#FEF3C7,color:#92400E,stroke:#F59E0B,stroke-width:1.5px;
+    classDef ingest fill:#FFEDD5,color:#7C2D12,stroke:#F97316,stroke-width:1.5px;
+    classDef compute fill:#DBEAFE,color:#1E3A8A,stroke:#2563EB,stroke-width:1.5px;
+    classDef service fill:#EDE9FE,color:#4C1D95,stroke:#7C3AED,stroke-width:1.5px;
+    classDef ops fill:#DCFCE7,color:#14532D,stroke:#22C55E,stroke-width:1.5px;
+    classDef success fill:#D1FAE5,color:#065F46,stroke:#10B981,stroke-width:1.5px;
+    classDef risk fill:#FCE7F3,color:#9D174D,stroke:#EC4899,stroke-width:1.5px;
+```
+
+---
+
 ## Table of Contents
 
 - [1. Lambda Deep Dive](#1-lambda-deep-dive)

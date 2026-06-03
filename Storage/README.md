@@ -1,6 +1,42 @@
 # AWS Storage
 A comprehensive AWS storage reference covering Amazon S3, EBS, EFS, FSx, Storage Gateway, Snow Family, DataSync, AWS Backup, and a storage decision guide. This README is designed for hands-on engineers, interview preparation, architecture reviews, and day-2 operations.
 > Legend for Mermaid diagrams: AWS orange `#FF9900`, AWS navy `#232F3E`, accent blue `#1F73B7`, and status green `#3CB371`.
+
+## Animated Workflow Overview
+
+```mermaid
+flowchart LR
+    A[Upload object]:::entry --> B[S3 Standard]:::hot
+    B --> C{Access pattern changes?}:::decision
+    C -- Frequent --> B
+    C -- Infrequent --> D[S3 Standard-IA]:::warm
+    D --> E{Archive candidate?}:::decision
+    E -- No --> D
+    E -- Yes --> F[S3 Glacier Instant Retrieval]:::cool
+    F --> G{Long-term retention?}:::decision
+    G -- Yes --> H[S3 Glacier Flexible Retrieval]:::archive
+    H --> I[S3 Glacier Deep Archive]:::archive
+    G -- No --> J[Keep optimized copy]:::warm
+    subgraph Governance [Lifecycle and protection]
+        B --> K[Versioning + encryption]:::control
+        D --> K
+        F --> K
+        H --> K
+        I --> K
+        K --> L[Lifecycle rules + replication]:::control
+        L --> M[Restore when needed]:::success
+    end
+    classDef entry fill:#232F3E,color:#ffffff,stroke:#232F3E,stroke-width:2px;
+    classDef hot fill:#FFEDD5,color:#7C2D12,stroke:#F97316,stroke-width:1.5px;
+    classDef warm fill:#FEF3C7,color:#92400E,stroke:#F59E0B,stroke-width:1.5px;
+    classDef cool fill:#DBEAFE,color:#1E3A8A,stroke:#2563EB,stroke-width:1.5px;
+    classDef archive fill:#EDE9FE,color:#4C1D95,stroke:#7C3AED,stroke-width:1.5px;
+    classDef control fill:#DCFCE7,color:#14532D,stroke:#22C55E,stroke-width:1.5px;
+    classDef decision fill:#FDE68A,color:#78350F,stroke:#D97706,stroke-width:1.5px;
+    classDef success fill:#D1FAE5,color:#065F46,stroke:#10B981,stroke-width:1.5px;
+```
+
+---
 ## Table of Contents
 - [S3 Overview](#s3-overview)
 - [S3 Storage Classes](#s3-storage-classes)

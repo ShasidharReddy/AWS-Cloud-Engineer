@@ -4,6 +4,40 @@ This document is the central visual reference for the **AWS-Cloud-Engineer** rep
 It is designed as a fast way to move from a concept to a mental model before diving into category-specific folders.
 Every section includes a Mermaid diagram, concise architectural commentary, and links to the most relevant deep-dive area in the repo.
 
+## Animated Workflow Overview
+
+```mermaid
+flowchart TD
+    A[Workload goals]:::entry --> B[Identify architecture scope]:::pillar
+    B --> C[Review operational excellence]:::pillar
+    B --> D[Review security controls]:::pillar
+    B --> E[Review reliability patterns]:::pillar
+    B --> F[Review performance efficiency]:::pillar
+    B --> G[Review cost optimization]:::pillar
+    B --> H[Review sustainability]:::pillar
+    subgraph Assessment_Loop [Well-Architected assessment loop]
+        C --> I{Risks or gaps found?}:::decision
+        D --> I
+        E --> I
+        F --> I
+        G --> I
+        H --> I
+        I -- Yes --> J[Prioritize improvements]:::action
+        J --> K[Implement architecture changes]:::action
+        K --> L[Re-run review]:::action
+        L --> B
+        I -- No --> M[Validate workload posture]:::success
+    end
+    M --> N[Publish reference architecture]:::success
+    classDef entry fill:#232F3E,color:#ffffff,stroke:#232F3E,stroke-width:2px;
+    classDef pillar fill:#FFEDD5,color:#7C2D12,stroke:#F97316,stroke-width:1.5px;
+    classDef decision fill:#FEF3C7,color:#92400E,stroke:#F59E0B,stroke-width:1.5px;
+    classDef action fill:#DBEAFE,color:#1E3A8A,stroke:#2563EB,stroke-width:1.5px;
+    classDef success fill:#DCFCE7,color:#14532D,stroke:#22C55E,stroke-width:1.5px;
+```
+
+---
+
 ## How to Use This Guide
 
 - Start with the table of contents when you need a fast orientation to a service, pattern, or decision path.

@@ -10,6 +10,43 @@
 - Use the best-practice sections as design review checklists when building production pipelines.
 - Mermaid diagrams use AWS-inspired colors: AWS orange (`#FF9900`), dark slate (`#232F3E`), and AWS blue accents (`#146EB4`).
 
+## Animated Workflow Overview
+
+```mermaid
+flowchart LR
+    A[Batch or streaming source]:::entry --> B[Ingest with Kinesis / MSK / SQS / SNS]:::ingest
+    B --> C[Land raw data in Amazon S3]:::lake
+    subgraph Governed_Lake [Lake and transformation]
+        C --> D[Catalog with AWS Glue]:::catalog
+        D --> E{Transform required?}:::decision
+        E -- Yes --> F[Glue / EMR / Step Functions jobs]:::process
+        F --> G[Curated S3 zone]:::lake
+        E -- No --> G
+    end
+    G --> H[Query with Athena or Redshift Spectrum]:::query
+    H --> I[Warehouse or marts in Redshift]:::query
+    I --> J[Visualize in QuickSight]:::consume
+    subgraph Feedback [Quality and operations]
+        J --> K[Monitor freshness, cost, and failures]:::ops
+        K --> L{Issue detected?}:::decision
+        L -- Yes --> M[Replay, alert, or remediate]:::ops
+        M --> B
+        L -- No --> N[Trusted analytics output]:::success
+    end
+    classDef entry fill:#232F3E,color:#ffffff,stroke:#232F3E,stroke-width:2px;
+    classDef ingest fill:#FFEDD5,color:#7C2D12,stroke:#F97316,stroke-width:1.5px;
+    classDef lake fill:#DBEAFE,color:#1E3A8A,stroke:#2563EB,stroke-width:1.5px;
+    classDef catalog fill:#EDE9FE,color:#4C1D95,stroke:#7C3AED,stroke-width:1.5px;
+    classDef process fill:#FEF3C7,color:#92400E,stroke:#F59E0B,stroke-width:1.5px;
+    classDef query fill:#DCFCE7,color:#14532D,stroke:#22C55E,stroke-width:1.5px;
+    classDef consume fill:#D1FAE5,color:#065F46,stroke:#10B981,stroke-width:1.5px;
+    classDef ops fill:#FCE7F3,color:#9D174D,stroke:#EC4899,stroke-width:1.5px;
+    classDef decision fill:#FDE68A,color:#78350F,stroke:#D97706,stroke-width:1.5px;
+    classDef success fill:#ECFCCB,color:#365314,stroke:#84CC16,stroke-width:1.5px;
+```
+
+---
+
 ## Coverage map
 
 - Amazon Kinesis: Data Streams, Firehose, Data Analytics, and Video Streams.
