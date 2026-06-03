@@ -3,6 +3,10 @@
 ## Scope
 This guide explains how to choose packet filters, application firewalls, DDoS protection, load balancer protocols, Kubernetes network policies, VPC endpoints, and Route 53 routing policies in a practical AWS architecture.
 
+## General design principles
+- The chosen control should match the layer where risk appears rather than layering every tool everywhere.
+- Standardized patterns reduce troubleshooting time and make shared services easier to govern.
+
 ## Security Groups vs NACLs
 | Feature | Security Groups | Network ACLs |
 | --- | --- | --- |
@@ -167,9 +171,10 @@ aws ec2 authorize-security-group-ingress --group-id sg-backend --ip-permissions 
 ```
 
 ### Why this matters
-- Use role-based SGs for app, database, control plane, and endpoint traffic. Reference SGs to express allowed service relationships rather than static IPs.
-- Standardized patterns reduce troubleshooting time and make shared services easier to govern.
-- The chosen control should match the layer where risk appears rather than layering every tool everywhere.
+- Use security group references to express app-to-app trust without hard-coding addresses.
+- Split ingress and egress responsibilities by role so reviews stay simple and auditable.
+- Name groups by workload function and keep descriptions current for incident response.
+
 
 ## NACL design patterns
 Reserve NACLs for subnet quarantine, broad deny ranges, and scenarios where an operations team needs subnet-wide enforcement independent of workload teams.
@@ -180,9 +185,10 @@ aws ec2 create-network-acl-entry --network-acl-id acl-1234abcd --rule-number 100
 ```
 
 ### Why this matters
-- Reserve NACLs for subnet quarantine, broad deny ranges, and scenarios where an operations team needs subnet-wide enforcement independent of workload teams.
-- Standardized patterns reduce troubleshooting time and make shared services easier to govern.
-- The chosen control should match the layer where risk appears rather than layering every tool everywhere.
+- Leave rule number gaps so emergency deny entries can be inserted without reordering everything.
+- Mirror ephemeral return traffic explicitly because stateless filtering breaks asymmetric rule sets.
+- Reserve NACL changes for subnet-level events such as quarantine, broad deny lists, or legacy boundaries.
+
 
 ## ALB for HTTP and HTTPS
 Pick ALB when host-based routing, path routing, redirects, WAF integration, gRPC, or WebSocket support matters more than preserving raw TCP behavior.
@@ -193,9 +199,10 @@ aws elbv2 create-listener --load-balancer-arn arn:aws:elasticloadbalancing:us-ea
 ```
 
 ### Why this matters
-- Pick ALB when host-based routing, path routing, redirects, WAF integration, gRPC, or WebSocket support matters more than preserving raw TCP behavior.
-- Standardized patterns reduce troubleshooting time and make shared services easier to govern.
-- The chosen control should match the layer where risk appears rather than layering every tool everywhere.
+- Redirect cleartext HTTP to HTTPS unless a specific compatibility requirement says otherwise.
+- Align health checks, target group paths, and idle timeout settings with application behavior.
+- Pair ALB with ACM certificates and WAF rules when the service is internet-facing.
+
 
 ## NLB for TCP and UDP
 Pick NLB for very high throughput, low-latency pass-through, static IPs, private services, and non-HTTP protocols such as databases or telemetry collectors.
@@ -206,9 +213,10 @@ aws elbv2 create-listener --load-balancer-arn arn:aws:elasticloadbalancing:us-ea
 ```
 
 ### Why this matters
-- Pick NLB for very high throughput, low-latency pass-through, static IPs, private services, and non-HTTP protocols such as databases or telemetry collectors.
-- Standardized patterns reduce troubleshooting time and make shared services easier to govern.
-- The chosen control should match the layer where risk appears rather than layering every tool everywhere.
+- Use NLB when clients need static IPs, source IP preservation, or raw protocol pass-through.
+- Choose target type and cross-zone behavior deliberately because they affect failover and cost.
+- Validate health checks on the real service port so non-HTTP workloads fail out cleanly.
+
 
 ## gRPC on ALB
 ALB understands HTTP/2 and can route gRPC while still offering L7 visibility, listener rules, and certificate management.
@@ -219,9 +227,10 @@ aws elbv2 create-listener --load-balancer-arn arn:aws:elasticloadbalancing:us-ea
 ```
 
 ### Why this matters
-- ALB understands HTTP/2 and can route gRPC while still offering L7 visibility, listener rules, and certificate management.
-- Standardized patterns reduce troubleshooting time and make shared services easier to govern.
-- The chosen control should match the layer where risk appears rather than layering every tool everywhere.
+- Keep HTTP/2 enabled end to end and confirm target groups use a gRPC-aware health check path.
+- Tune timeouts for streaming calls so long-lived RPCs are not dropped as idle sessions.
+- Use listener rules and headers to separate service versions without adding another proxy tier.
+
 
 ## WebSocket workloads
 WebSocket traffic works well through ALB when clients need upgrade support and the app benefits from HTTP-aware controls and WAF.
@@ -232,9 +241,10 @@ aws elbv2 modify-load-balancer-attributes --load-balancer-arn arn:aws:elasticloa
 ```
 
 ### Why this matters
-- WebSocket traffic works well through ALB when clients need upgrade support and the app benefits from HTTP-aware controls and WAF.
-- Standardized patterns reduce troubleshooting time and make shared services easier to govern.
-- The chosen control should match the layer where risk appears rather than layering every tool everywhere.
+- Increase ALB idle timeout settings to match expected session duration for connected clients.
+- Model connection fan-out and stickiness because WebSocket capacity is driven by concurrency, not just requests.
+- Watch WAF and authentication flows so upgrades succeed without exposing unauthenticated channels.
+
 
 ## PrivateLink provider model
 Expose internal services to consumer VPCs or external AWS accounts without opening routing adjacency by using endpoint services backed by NLBs.
@@ -245,9 +255,10 @@ aws ec2 create-vpc-endpoint-service-configuration --network-load-balancer-arns a
 ```
 
 ### Why this matters
-- Expose internal services to consumer VPCs or external AWS accounts without opening routing adjacency by using endpoint services backed by NLBs.
-- Standardized patterns reduce troubleshooting time and make shared services easier to govern.
-- The chosen control should match the layer where risk appears rather than layering every tool everywhere.
+- Define an acceptance workflow and allowed principals before exposing endpoint services across accounts.
+- Publish private DNS names and connection expectations so consumers know how the service is reached.
+- Remember PrivateLink avoids route adjacency, which helps when VPC CIDRs overlap or ownership is separate.
+
 
 ## DNS routing patterns
 Use Route 53 weighted policies for canary releases, failover for recovery, latency for active-active, and geolocation when regulation or content strategy requires it.
@@ -258,9 +269,10 @@ aws route53 change-resource-record-sets --hosted-zone-id Z1234567890 --change-ba
 ```
 
 ### Why this matters
-- Use Route 53 weighted policies for canary releases, failover for recovery, latency for active-active, and geolocation when regulation or content strategy requires it.
-- Standardized patterns reduce troubleshooting time and make shared services easier to govern.
-- The chosen control should match the layer where risk appears rather than layering every tool everywhere.
+- Lower TTLs before weighted or failover cutovers so traffic shifts complete in a predictable window.
+- Back failover records with health checks and tested runbooks rather than assuming DNS alone guarantees recovery.
+- Use weighted changes with metrics review checkpoints when rolling out new versions or regions.
+
 
 ## Network operations scenario 1
 - Scenario 1: identify whether the requirement is packet filtering, application filtering, DDoS resilience, DNS steering, or Kubernetes east-west segmentation.

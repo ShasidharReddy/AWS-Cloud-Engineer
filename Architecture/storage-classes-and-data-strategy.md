@@ -3,6 +3,10 @@
 ## Objective
 Choose storage based on access pattern, durability, latency, throughput, concurrency, and retention rather than defaulting to a single service or class.
 
+## General decision principles
+- Verify recovery objectives, backup behavior, and replication requirements before finalizing the storage class.
+- Model cost with expected growth, minimum storage duration, retrieval behavior, and throughput needs.
+
 ## Amazon S3 Storage Classes
 | Storage Class | Best For | Access Pattern | Why Use It | Main Trade-off |
 | --- | --- | --- | --- | --- |
@@ -17,6 +21,11 @@ Choose storage based on access pattern, durability, latency, throughput, concurr
 ### CLI Example: Lifecycle to Intelligent-Tiering and Glacier
 ```bash
 aws s3api put-bucket-lifecycle-configuration --bucket enterprise-data --lifecycle-configuration file://s3-lifecycle.json
+```
+
+### Shared S3 object upload pattern
+```bash
+aws s3api put-object --bucket enterprise-data --key sample/object.txt --body ./README.md --storage-class <storage-class>
 ```
 
 ## Amazon EBS Volume Types
@@ -127,91 +136,91 @@ Choose S3 Standard for active application assets, hot analytics objects, and fre
 
 ### CLI or YAML reference
 ```bash
-aws s3api put-object --bucket enterprise-data --key sample/object.txt --body ./README.md --storage-class STANDARD
+aws s3 cp ./README.md s3://enterprise-data/sample/object.txt
 ```
 
 ### Decision note
-- Choose S3 Standard for active application assets, hot analytics objects, and frequently requested files where latency and multi-AZ resilience matter most.
-- Verify recovery objectives, backup behavior, and replication requirements before finalizing the storage class.
-- Model cost with expected growth, minimum storage duration, retrieval behavior, and throughput needs.
+- Keep frequently requested content here to avoid retrieval fees and unnecessary lifecycle churn.
+- Pair it with versioning and cross-Region replication only for datasets that need rapid recovery.
+
 
 ## S3 Standard-IA
 Choose Standard-IA for backup copies and data that remains important but is read less often than daily hot paths.
 
 ### CLI or YAML reference
 ```bash
-aws s3api put-object --bucket enterprise-data --key sample/object.txt --body ./README.md --storage-class STANDARD
+aws s3api put-bucket-lifecycle-configuration --bucket enterprise-backups --lifecycle-configuration file://standard-ia-transition.json
 ```
 
 ### Decision note
-- Choose Standard-IA for backup copies and data that remains important but is read less often than daily hot paths.
-- Verify recovery objectives, backup behavior, and replication requirements before finalizing the storage class.
-- Model cost with expected growth, minimum storage duration, retrieval behavior, and throughput needs.
+- Use lifecycle transitions so data lands here after the hot access period instead of on day one.
+- Watch the minimum storage duration and per-GB retrieval charges before moving backup sets here.
+
 
 ## S3 One Zone-IA
 Choose One Zone-IA only when the data is re-creatable or duplicated elsewhere and cost reduction matters more than multi-AZ storage.
 
 ### CLI or YAML reference
 ```bash
-aws s3api put-object --bucket enterprise-data --key sample/object.txt --body ./README.md --storage-class STANDARD
+aws s3api put-bucket-replication --bucket secondary-copies --replication-configuration file://secondary-copy-replication.json
 ```
 
 ### Decision note
-- Choose One Zone-IA only when the data is re-creatable or duplicated elsewhere and cost reduction matters more than multi-AZ storage.
-- Verify recovery objectives, backup behavior, and replication requirements before finalizing the storage class.
-- Model cost with expected growth, minimum storage duration, retrieval behavior, and throughput needs.
+- Only store data that can be regenerated quickly or already exists in another durable copy.
+- Document the recovery path for an Availability Zone loss before approving this class.
+
 
 ## S3 Intelligent-Tiering
 Choose Intelligent-Tiering when you cannot predict the access curve and want AWS to optimize object placement automatically.
 
 ### CLI or YAML reference
 ```bash
-aws s3api put-object --bucket enterprise-data --key sample/object.txt --body ./README.md --storage-class STANDARD
+aws s3api put-bucket-intelligent-tiering-configuration --bucket enterprise-data --id auto-tiering-default --intelligent-tiering-configuration file://intelligent-tiering.json
 ```
 
 ### Decision note
-- Choose Intelligent-Tiering when you cannot predict the access curve and want AWS to optimize object placement automatically.
-- Verify recovery objectives, backup behavior, and replication requirements before finalizing the storage class.
-- Model cost with expected growth, minimum storage duration, retrieval behavior, and throughput needs.
+- This works best when access patterns are uncertain and the object count justifies the monitoring fee.
+- Review whether archive tiers are enabled because they change restore expectations for dormant data.
+
 
 ## S3 Glacier Instant Retrieval
 Choose Glacier Instant Retrieval for archives that still require near-immediate retrieval, such as compliance evidence with occasional audit access.
 
 ### CLI or YAML reference
 ```bash
-aws s3api put-object --bucket enterprise-data --key sample/object.txt --body ./README.md --storage-class STANDARD
+aws s3api put-bucket-lifecycle-configuration --bucket audit-evidence --lifecycle-configuration file://glacier-ir-policy.json
 ```
 
 ### Decision note
-- Choose Glacier Instant Retrieval for archives that still require near-immediate retrieval, such as compliance evidence with occasional audit access.
-- Verify recovery objectives, backup behavior, and replication requirements before finalizing the storage class.
-- Model cost with expected growth, minimum storage duration, retrieval behavior, and throughput needs.
+- Use it for evidence or media archives that are cold most of the time but still need near-immediate access.
+- Budget for retrieval charges and the 90-day minimum duration before migrating large datasets.
+
 
 ## S3 Glacier Flexible Retrieval
 Choose Glacier Flexible Retrieval for backup archives and retention sets where restoration time can be minutes or hours.
 
 ### CLI or YAML reference
 ```bash
-aws s3api put-object --bucket enterprise-data --key sample/object.txt --body ./README.md --storage-class STANDARD
+aws s3api restore-object --bucket backup-archive --key nightly/db-backup.tar.gz --restore-request file://glacier-restore.json
 ```
 
 ### Decision note
-- Choose Glacier Flexible Retrieval for backup archives and retention sets where restoration time can be minutes or hours.
-- Verify recovery objectives, backup behavior, and replication requirements before finalizing the storage class.
-- Model cost with expected growth, minimum storage duration, retrieval behavior, and throughput needs.
+- Choose retrieval tiers that match backup restore objectives instead of assuming the fastest option every time.
+- Run periodic restore tests so archive data stays recoverable under operational pressure.
+
 
 ## S3 Deep Archive
 Choose Deep Archive for long-term records and legal retention where retrieval speed is least important.
 
 ### CLI or YAML reference
 ```bash
-aws s3api put-object --bucket enterprise-data --key sample/object.txt --body ./README.md --storage-class STANDARD
+aws s3api restore-object --bucket compliance-archive --key legal/record.zip --restore-request file://deep-archive-restore.json
 ```
 
 ### Decision note
-- Choose Deep Archive for long-term records and legal retention where retrieval speed is least important.
-- Verify recovery objectives, backup behavior, and replication requirements before finalizing the storage class.
-- Model cost with expected growth, minimum storage duration, retrieval behavior, and throughput needs.
+- Best for legal or regulatory retention where retrieval is rare and planned well in advance.
+- Maintain an index of archived objects so expensive bulk restores are targeted and minimal.
+
 
 ## EBS gp3
 Use gp3 as the default EC2 or EKS block storage choice because it gives separate control over storage size, IOPS, and throughput.
@@ -222,9 +231,9 @@ aws ec2 create-volume --availability-zone us-east-1a --volume-type gp3 --size 20
 ```
 
 ### Decision note
-- Use gp3 as the default EC2 or EKS block storage choice because it gives separate control over storage size, IOPS, and throughput.
-- Verify recovery objectives, backup behavior, and replication requirements before finalizing the storage class.
-- Model cost with expected growth, minimum storage duration, retrieval behavior, and throughput needs.
+- Tune IOPS and throughput independently before increasing size because gp3 separates those controls.
+- Track queue depth and latency metrics so you know when gp3 is still enough for the workload.
+
 
 ## EBS io2
 Use io2 for critical relational databases and sustained low-latency workloads that need very high provisioned IOPS.
@@ -235,9 +244,9 @@ aws ec2 create-volume --availability-zone us-east-1a --volume-type io2 --size 20
 ```
 
 ### Decision note
-- Use io2 for critical relational databases and sustained low-latency workloads that need very high provisioned IOPS.
-- Verify recovery objectives, backup behavior, and replication requirements before finalizing the storage class.
-- Model cost with expected growth, minimum storage duration, retrieval behavior, and throughput needs.
+- Use measured latency or throughput requirements to justify io2 instead of defaulting to premium storage.
+- Align provisioned IOPS with database failover and replication behavior so performance stays predictable.
+
 
 ## EBS st1
 Use st1 for throughput-driven workloads such as large logs or batch pipelines that read and write sequentially.
@@ -248,9 +257,9 @@ aws ec2 create-volume --availability-zone us-east-1a --volume-type st1 --size 10
 ```
 
 ### Decision note
-- Use st1 for throughput-driven workloads such as large logs or batch pipelines that read and write sequentially.
-- Verify recovery objectives, backup behavior, and replication requirements before finalizing the storage class.
-- Model cost with expected growth, minimum storage duration, retrieval behavior, and throughput needs.
+- Keep it for large sequential reads and writes such as streaming logs or batch ETL scratch space.
+- Avoid using st1 for boot volumes or random-access databases because latency will be inconsistent.
+
 
 ## EBS sc1
 Use sc1 only for cold block data that is rarely touched and not latency sensitive.
@@ -261,9 +270,9 @@ aws ec2 create-volume --availability-zone us-east-1a --volume-type sc1 --size 20
 ```
 
 ### Decision note
-- Use sc1 only for cold block data that is rarely touched and not latency sensitive.
-- Verify recovery objectives, backup behavior, and replication requirements before finalizing the storage class.
-- Model cost with expected growth, minimum storage duration, retrieval behavior, and throughput needs.
+- Reserve sc1 for cold block datasets that are touched occasionally and tolerate long warm-up periods.
+- Plan a promotion path to a faster tier before maintenance or recovery events that need rapid reads.
+
 
 ## EKS with EBS CSI
 Use EBS CSI for stateful sets and databases that map well to single-writer persistent volumes.
@@ -274,9 +283,9 @@ kubectl get storageclass
 ```
 
 ### Decision note
-- Use EBS CSI for stateful sets and databases that map well to single-writer persistent volumes.
-- Verify recovery objectives, backup behavior, and replication requirements before finalizing the storage class.
-- Model cost with expected growth, minimum storage duration, retrieval behavior, and throughput needs.
+- Remember EBS-backed volumes are single-writer and Availability Zone scoped when scheduling stateful pods.
+- Keep WaitForFirstConsumer and topology-aware placement enabled so storage lands near the workload.
+
 
 ## EKS with EFS CSI
 Use EFS CSI for CMS platforms, shared content, build artifacts, or other workloads requiring RWX semantics.
@@ -287,9 +296,9 @@ kubectl get storageclass
 ```
 
 ### Decision note
-- Use EFS CSI for CMS platforms, shared content, build artifacts, or other workloads requiring RWX semantics.
-- Verify recovery objectives, backup behavior, and replication requirements before finalizing the storage class.
-- Model cost with expected growth, minimum storage duration, retrieval behavior, and throughput needs.
+- Use access points and POSIX permissions to keep shared file access controlled across teams and apps.
+- Review small-file latency and throughput mode choices before placing chatty workloads on EFS.
+
 
 ## EKS with FSx Lustre
 Use FSx for Lustre when machine learning, analytics, or HPC jobs need shared file data with high throughput and parallelism.
@@ -300,9 +309,9 @@ kubectl get storageclass
 ```
 
 ### Decision note
-- Use FSx for Lustre when machine learning, analytics, or HPC jobs need shared file data with high throughput and parallelism.
-- Verify recovery objectives, backup behavior, and replication requirements before finalizing the storage class.
-- Model cost with expected growth, minimum storage duration, retrieval behavior, and throughput needs.
+- Prefer it for parallel read or write workloads tied to ML, HPC, or analytics pipelines rather than general app storage.
+- Choose the deployment type and S3 integration model up front because scratch and persistent modes behave differently.
+
 
 ## RDS storage selection
 Default to gp3 for most RDS deployments and move to provisioned IOPS classes when sustained write latency becomes a business risk.
@@ -313,9 +322,9 @@ aws rds create-db-instance --db-instance-identifier app-db --engine postgres --a
 ```
 
 ### Decision note
-- Default to gp3 for most RDS deployments and move to provisioned IOPS classes when sustained write latency becomes a business risk.
-- Verify recovery objectives, backup behavior, and replication requirements before finalizing the storage class.
-- Model cost with expected growth, minimum storage duration, retrieval behavior, and throughput needs.
+- Start with gp3 and storage autoscaling unless observed write latency proves the need for provisioned IOPS.
+- Review backups, Multi-AZ failover behavior, and burst metrics together because storage tuning affects recovery and cost.
+
 
 ## Aurora capacity model
 Aurora decouples storage and compute, making it a strong fit when relational scale or failover simplicity outweighs engine lock-in concerns.
@@ -326,9 +335,9 @@ aws rds create-db-cluster --db-cluster-identifier app-aurora --engine aurora-pos
 ```
 
 ### Decision note
-- Aurora decouples storage and compute, making it a strong fit when relational scale or failover simplicity outweighs engine lock-in concerns.
-- Verify recovery objectives, backup behavior, and replication requirements before finalizing the storage class.
-- Model cost with expected growth, minimum storage duration, retrieval behavior, and throughput needs.
+- Optimize reader endpoints, failover priorities, and autoscaling policies as part of the storage decision.
+- Compare Aurora Standard and I/O-Optimized pricing against real query patterns before committing.
+
 
 ## DynamoDB billing mode
 Choose on-demand for spiky or uncertain demand and provisioned with auto scaling when traffic is steady enough to optimize cost.
@@ -339,9 +348,9 @@ aws dynamodb update-table --table-name Orders --billing-mode PAY_PER_REQUEST
 ```
 
 ### Decision note
-- Choose on-demand for spiky or uncertain demand and provisioned with auto scaling when traffic is steady enough to optimize cost.
-- Verify recovery objectives, backup behavior, and replication requirements before finalizing the storage class.
-- Model cost with expected growth, minimum storage duration, retrieval behavior, and throughput needs.
+- Use on-demand for uncertain launches and switch to provisioned with auto scaling when traffic becomes stable.
+- Check partition key design and throttle patterns because cost and performance both depend on even request distribution.
+
 
 ## Data architecture checkpoint 1
 - Checkpoint 1: confirm hot, warm, cold, and archive datasets are classified by recovery objective and access frequency.
