@@ -2,6 +2,41 @@
 
 A comprehensive reference for AWS-native and AWS-adjacent CI/CD, DevOps, infrastructure as code, artifact, and deployment patterns.
 
+## Animated Workflow Overview
+
+```mermaid
+flowchart LR
+    A[Source commit]:::entry --> B[CodePipeline source stage]:::service
+    B --> C[CodeBuild compile and test]:::service
+    C --> D{Quality gates pass?}:::decision
+    D -- No --> E[Fail pipeline and notify team]:::risk
+    D -- Yes --> F[Package artifact or container]:::service
+    subgraph Promotion [Promotion workflow]
+        F --> G[Deploy to dev / test]:::deploy
+        G --> H[Run integration checks]:::deploy
+        H --> I{Manual approval required?}:::decision
+        I -- Yes --> J[Approve promotion]:::control
+        I -- No --> K[Auto-promote]:::control
+        J --> L[Deploy to production]:::deploy
+        K --> L
+    end
+    L --> M[Monitor release health]:::observe
+    M --> N{Rollback needed?}:::decision
+    N -- Yes --> O[CodeDeploy rollback]:::risk
+    O --> M
+    N -- No --> P[Release accepted]:::success
+    classDef entry fill:#232F3E,color:#ffffff,stroke:#232F3E,stroke-width:2px;
+    classDef service fill:#FFEDD5,color:#7C2D12,stroke:#F97316,stroke-width:1.5px;
+    classDef decision fill:#FEF3C7,color:#92400E,stroke:#F59E0B,stroke-width:1.5px;
+    classDef deploy fill:#DBEAFE,color:#1E3A8A,stroke:#2563EB,stroke-width:1.5px;
+    classDef control fill:#EDE9FE,color:#4C1D95,stroke:#7C3AED,stroke-width:1.5px;
+    classDef observe fill:#DCFCE7,color:#14532D,stroke:#22C55E,stroke-width:1.5px;
+    classDef success fill:#D1FAE5,color:#065F46,stroke:#10B981,stroke-width:1.5px;
+    classDef risk fill:#FCE7F3,color:#9D174D,stroke:#EC4899,stroke-width:1.5px;
+```
+
+---
+
 ## Table of Contents
 - [AWS CodePipeline](#aws-codepipeline)
 - [AWS CodeBuild](#aws-codebuild)

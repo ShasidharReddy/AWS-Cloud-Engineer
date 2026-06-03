@@ -2,6 +2,40 @@
 
 > Comprehensive AWS Compute guide covering EC2 families, lifecycle, purchasing, images, metadata, networking, storage, scaling, Elastic Beanstalk, Image Builder, Nitro, and Spot strategy.
 
+## Animated Workflow Overview
+
+```mermaid
+flowchart LR
+    A[Launch request]:::entry --> B[Choose AMI + instance type]:::build
+    B --> C[Attach IAM role, ENI, and EBS]:::build
+    C --> D[Boot EC2 instance]:::run
+    subgraph Configure [Configure and register]
+        D --> E[Run user data / config management]:::run
+        E --> F{Bootstrap healthy?}:::decision
+        F -- No --> G[Troubleshoot logs and retry]:::risk
+        G --> E
+        F -- Yes --> H[Register with target group]:::run
+    end
+    subgraph Scale [Elastic operations]
+        H --> I[Publish metrics to CloudWatch]:::observe
+        I --> J{Demand spike?}:::decision
+        J -- Yes --> K[Auto Scaling launches capacity]:::scale
+        K --> H
+        J -- No --> L[Remain in steady state]:::scale
+    end
+    L --> M[Patch, back up, and harden]:::observe
+    M --> N[Alarm, monitor, and optimize]:::observe
+    classDef entry fill:#232F3E,color:#ffffff,stroke:#232F3E,stroke-width:2px;
+    classDef build fill:#FFEDD5,color:#7C2D12,stroke:#F97316,stroke-width:1.5px;
+    classDef run fill:#DBEAFE,color:#1E3A8A,stroke:#2563EB,stroke-width:1.5px;
+    classDef decision fill:#FEF3C7,color:#92400E,stroke:#F59E0B,stroke-width:1.5px;
+    classDef scale fill:#DCFCE7,color:#14532D,stroke:#22C55E,stroke-width:1.5px;
+    classDef observe fill:#EDE9FE,color:#4C1D95,stroke:#7C3AED,stroke-width:1.5px;
+    classDef risk fill:#FCE7F3,color:#9D174D,stroke:#EC4899,stroke-width:1.5px;
+```
+
+---
+
 ## Table of Contents
 
 1. [EC2 Instance Types](#ec2-instance-types)

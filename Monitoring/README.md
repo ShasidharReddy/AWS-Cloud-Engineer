@@ -5,6 +5,39 @@ It covers CloudWatch, CloudTrail, X-Ray, EventBridge, Systems Manager, Config, A
 Each major section includes a Mermaid diagram, explanations, AWS CLI commands, and best practices.
 The diagrams use AWS-themed colors with `fill:#FF9900,color:#232F3E` and `fill:#232F3E,color:#fff` as requested.
 
+## Animated Workflow Overview
+
+```mermaid
+flowchart LR
+    A[Application and infrastructure signals]:::entry --> B[Metrics, logs, traces, events]:::ingest
+    subgraph Telemetry [Telemetry collection]
+        B --> C[CloudWatch metrics]:::service
+        B --> D[CloudWatch Logs]:::service
+        B --> E[X-Ray traces]:::service
+        B --> F[CloudTrail + Config]:::service
+    end
+    C --> G[Dashboards and anomaly detection]:::analysis
+    D --> G
+    E --> G
+    F --> G
+    G --> H{Threshold or pattern breach?}:::decision
+    H -- Yes --> I[Alarm / EventBridge rule]:::response
+    I --> J[Systems Manager / Lambda remediation]:::response
+    J --> K[Notify teams and ticketing]:::response
+    H -- No --> L[Continue normal observation]:::success
+    K --> M[Review post-incident improvements]:::analysis
+    M --> B
+    classDef entry fill:#232F3E,color:#ffffff,stroke:#232F3E,stroke-width:2px;
+    classDef ingest fill:#FFEDD5,color:#7C2D12,stroke:#F97316,stroke-width:1.5px;
+    classDef service fill:#DBEAFE,color:#1E3A8A,stroke:#2563EB,stroke-width:1.5px;
+    classDef analysis fill:#EDE9FE,color:#4C1D95,stroke:#7C3AED,stroke-width:1.5px;
+    classDef decision fill:#FEF3C7,color:#92400E,stroke:#F59E0B,stroke-width:1.5px;
+    classDef response fill:#FCE7F3,color:#9D174D,stroke:#EC4899,stroke-width:1.5px;
+    classDef success fill:#DCFCE7,color:#14532D,stroke:#22C55E,stroke-width:1.5px;
+```
+
+---
+
 ## Contents
 
 - [Amazon CloudWatch](#amazon-cloudwatch)

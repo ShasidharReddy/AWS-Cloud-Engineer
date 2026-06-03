@@ -1,5 +1,38 @@
 # AWS Cost Optimization
 
+A practical FinOps guide for reducing AWS spend through visibility, rightsizing, commitment planning, storage lifecycle controls, and continuous governance.
+
+## Animated Workflow Overview
+
+```mermaid
+flowchart LR
+    A[Usage and billing data]:::entry --> B[CUR / Cost Explorer / Budgets]:::analyze
+    B --> C[Find spend anomalies and trends]:::analyze
+    C --> D{Optimization opportunity?}:::decision
+    D -- Compute --> E[Rightsize, Spot, or Savings Plans]:::action
+    D -- Storage --> F[Lifecycle, tiering, and cleanup]:::action
+    D -- Data transfer --> G[Reduce egress and redesign paths]:::action
+    D -- No --> H[Keep monitoring guardrails]:::success
+    subgraph Govern [Govern and validate]
+        E --> I[Implement changes safely]:::control
+        F --> I
+        G --> I
+        I --> J[Track realized savings]:::control
+        J --> K{Savings sustained?}:::decision
+        K -- No --> L[Revisit tags, owners, and budgets]:::risk
+        L --> B
+        K -- Yes --> M[Standardize FinOps playbook]:::success
+    end
+    classDef entry fill:#232F3E,color:#ffffff,stroke:#232F3E,stroke-width:2px;
+    classDef analyze fill:#FFEDD5,color:#7C2D12,stroke:#F97316,stroke-width:1.5px;
+    classDef action fill:#DBEAFE,color:#1E3A8A,stroke:#2563EB,stroke-width:1.5px;
+    classDef control fill:#EDE9FE,color:#4C1D95,stroke:#7C3AED,stroke-width:1.5px;
+    classDef decision fill:#FEF3C7,color:#92400E,stroke:#F59E0B,stroke-width:1.5px;
+    classDef success fill:#DCFCE7,color:#14532D,stroke:#22C55E,stroke-width:1.5px;
+    classDef risk fill:#FCE7F3,color:#9D174D,stroke:#EC4899,stroke-width:1.5px;
+```
+
+---
 ## Table of Contents
 - [1. Executive Summary](#1-executive-summary)
 - [2. AWS Pricing Models](#2-aws-pricing-models)

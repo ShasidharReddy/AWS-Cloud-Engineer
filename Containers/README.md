@@ -4,6 +4,47 @@ A comprehensive field guide for AWS container platforms and adjacent services.
 
 This document covers decision-making, architecture, networking, security, storage, autoscaling, image management, deployment tooling, and operational guidance for Amazon ECS, Amazon EKS, AWS Fargate, Amazon ECR, AWS App Runner, and AWS Copilot CLI.
 
+
+## Focused Deep Dives
+
+- [Amazon EKS Deep Dive](./eks-deep-dive.md) — cluster creation, node groups, Fargate profiles, networking, load balancing, GitOps, security, monitoring, EKS Anywhere, and troubleshooting.
+
+## Animated Workflow Overview
+
+```mermaid
+flowchart LR
+    A[Developer commit]:::entry --> B[Build container image]:::build
+    B --> C[Push image to Amazon ECR]:::build
+    subgraph Control_Plane [Platform orchestration]
+        C --> D{Run on ECS, EKS, or App Runner?}:::decision
+        D -- ECS/Fargate --> ECS[Schedule ECS task]:::service
+        D -- EKS --> EKS[Schedule Kubernetes pod]:::service
+        D -- App Runner --> AR[Deploy App Runner service]:::service
+    end
+    ECS --> N[Attach service discovery + load balancer]:::network
+    EKS --> N
+    AR --> N
+    subgraph Runtime [Runtime lifecycle]
+        N --> O[Start containers and mount secrets/storage]:::runtime
+        O --> P{Healthy and ready?}:::decision
+        P -- No --> Q[Restart, roll back, or reschedule]:::risk
+        Q --> O
+        P -- Yes --> R[Serve traffic]:::runtime
+    end
+    R --> S[Autoscale on metrics]:::ops
+    S --> T[Observe logs, traces, and cost]:::ops
+    classDef entry fill:#232F3E,color:#ffffff,stroke:#232F3E,stroke-width:2px;
+    classDef build fill:#FFEDD5,color:#7C2D12,stroke:#F97316,stroke-width:1.5px;
+    classDef decision fill:#FEF3C7,color:#92400E,stroke:#F59E0B,stroke-width:1.5px;
+    classDef service fill:#DBEAFE,color:#1E3A8A,stroke:#2563EB,stroke-width:1.5px;
+    classDef network fill:#EDE9FE,color:#4C1D95,stroke:#7C3AED,stroke-width:1.5px;
+    classDef runtime fill:#DCFCE7,color:#14532D,stroke:#22C55E,stroke-width:1.5px;
+    classDef ops fill:#D1FAE5,color:#065F46,stroke:#10B981,stroke-width:1.5px;
+    classDef risk fill:#FCE7F3,color:#9D174D,stroke:#EC4899,stroke-width:1.5px;
+```
+
+---
+
 ## How to use this guide
 
 - Start with the **Container Decision Guide** to choose the right control plane and compute model.

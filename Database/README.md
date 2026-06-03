@@ -6,6 +6,43 @@ It covers database selection, core architectures, CLI operations, scaling patter
 
 > Replace placeholder values such as `123456789012`, subnet groups, security groups, resource names, ARNs, regions, and account-specific parameters before running commands.
 
+## Animated Workflow Overview
+
+```mermaid
+flowchart TD
+    A[Application workload]:::entry --> B{Relational schema needed?}:::decision
+    B -- Yes --> C{Need cloud-native scale + HA?}:::decision
+    C -- Yes --> Aurora[Aurora cluster]:::service
+    C -- No --> RDS[RDS engine]:::service
+    B -- No --> D{Millisecond key-value access?}:::decision
+    D -- Yes --> Dynamo[DynamoDB table]:::service
+    D -- No --> E{Analytics / warehouse query pattern?}:::decision
+    E -- Yes --> Redshift[Amazon Redshift]:::service
+    E -- No --> F{Document / cache / graph / time-series?}:::decision
+    F -- Document --> DocDB[DocumentDB]:::service
+    F -- Cache --> Cache[ElastiCache]:::service
+    F -- Graph or time --> Specialty[Neptune / Timestream / QLDB / Keyspaces]:::service
+    subgraph Operate [Migration and operations]
+        Aurora --> G[Backups, replicas, observability]:::ops
+        RDS --> G
+        Dynamo --> G
+        Redshift --> G
+        DocDB --> G
+        Cache --> G
+        Specialty --> G
+        G --> H{Migrating existing data?}:::decision
+        H -- Yes --> DMS[DMS / SCT workflow]:::ops
+        H -- No --> I[Production-ready database choice]:::success
+    end
+    classDef entry fill:#232F3E,color:#ffffff,stroke:#232F3E,stroke-width:2px;
+    classDef decision fill:#FEF3C7,color:#92400E,stroke:#F59E0B,stroke-width:1.5px;
+    classDef service fill:#FFEDD5,color:#7C2D12,stroke:#F97316,stroke-width:1.5px;
+    classDef ops fill:#DBEAFE,color:#1E3A8A,stroke:#2563EB,stroke-width:1.5px;
+    classDef success fill:#DCFCE7,color:#14532D,stroke:#22C55E,stroke-width:1.5px;
+```
+
+---
+
 ---
 
 ## Table of Contents
@@ -24,6 +61,7 @@ It covers database selection, core architectures, CLI operations, scaling patter
 12. [AWS DMS](#aws-dms-database-migration-service)
 13. [RDS Proxy](#rds-proxy)
 14. [Cross-Service Operational Checklist](#cross-service-operational-checklist)
+15. [Database Migration Scenarios Deep Dive](./database-migration-scenarios.md)
 
 ---
 

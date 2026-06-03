@@ -4,6 +4,37 @@ This README is a field-ready migration reference for planning, executing, and op
 It covers strategic decision-making, discovery, server and database migration services, bulk and online data movement, cross-cloud mappings, landing-zone design, and post-migration optimization.
 Every required migration topic includes a Mermaid diagram using AWS colors, a practical explanation, AWS CLI commands, best practices, common pitfalls, and a validation checklist.
 
+## Animated Workflow Overview
+
+```mermaid
+flowchart LR
+    A[Portfolio intake]:::entry --> B[Discover apps, data, and dependencies]:::phase
+    B --> C[Assess business case and 7 Rs]:::phase
+    C --> D{Migration path selected?}:::decision
+    D -- Rehost / replatform --> E[Build landing zone and waves]:::phase
+    D -- Refactor / retire --> F[Design target state changes]:::phase
+    E --> G[Replicate servers and databases]:::phase
+    F --> G
+    subgraph Execute [Migration execution]
+        G --> H[Cut over workloads]:::execute
+        H --> I{Validation successful?}:::decision
+        I -- No --> J[Rollback or remediate blockers]:::risk
+        J --> G
+        I -- Yes --> K[Stabilize in AWS]:::execute
+    end
+    K --> L[Optimize performance, security, and cost]:::optimize
+    L --> M[Operational handoff and governance]:::success
+    classDef entry fill:#232F3E,color:#ffffff,stroke:#232F3E,stroke-width:2px;
+    classDef phase fill:#FFEDD5,color:#7C2D12,stroke:#F97316,stroke-width:1.5px;
+    classDef execute fill:#DBEAFE,color:#1E3A8A,stroke:#2563EB,stroke-width:1.5px;
+    classDef optimize fill:#EDE9FE,color:#4C1D95,stroke:#7C3AED,stroke-width:1.5px;
+    classDef decision fill:#FEF3C7,color:#92400E,stroke:#F59E0B,stroke-width:1.5px;
+    classDef success fill:#DCFCE7,color:#14532D,stroke:#22C55E,stroke-width:1.5px;
+    classDef risk fill:#FCE7F3,color:#9D174D,stroke:#EC4899,stroke-width:1.5px;
+```
+
+---
+
 ## Table of Contents
 
 - [Migration Strategy: The 7 Rs](#seven-rs)
@@ -25,6 +56,7 @@ Every required migration topic includes a Mermaid diagram using AWS colors, a pr
 - [Appendix A: Migration Wave Checklist](#appendix-a)
 - [Appendix B: Cutover and Rollback Checklist](#appendix-b)
 - [Appendix C: Tagging, Naming, and Governance Standards](#appendix-c)
+- [Disaster Recovery Production Scenarios Deep Dive](./disaster-recovery-prod-scenarios.md)
 
 ## Core Principles
 
