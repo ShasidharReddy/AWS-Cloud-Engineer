@@ -4,6 +4,11 @@ This document is a comprehensive field guide for core AWS IAM and security servi
 
 > Mermaid color palette used throughout: `fill:#FF9900,color:#232F3E`, `fill:#232F3E,color:#fff`, `fill:#DD344C,color:#fff`
 
+
+## Focused Deep Dives
+
+- [Identity and Governance Deep Dive](./identity-and-governance.md) — IAM, Organizations, SCPs, Control Tower, Identity Center, permission boundaries, Config, GuardDuty, Security Hub, Inspector, and Audit Manager.
+
 ## Animated Workflow Overview
 
 ```mermaid

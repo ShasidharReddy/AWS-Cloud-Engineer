@@ -69,6 +69,7 @@ aws sts get-caller-identity
 - [10. VPC Endpoints](#10-vpc-endpoints)
 - [11. Route 53](#11-route-53)
 - [12. Elastic Load Balancing](#12-elastic-load-balancing)
+  - [Load Balancer Real-World Scenarios](./load-balancer-real-world-scenarios.md)
 - [13. AWS Global Accelerator](#13-aws-global-accelerator)
 - [14. CloudFront](#14-cloudfront)
 - [15. AWS PrivateLink](#15-aws-privatelink)

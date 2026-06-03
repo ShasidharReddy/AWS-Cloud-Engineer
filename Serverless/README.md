@@ -4,6 +4,11 @@ A comprehensive field guide for designing, deploying, operating, and troubleshoo
 
 This document is intentionally long-form so it can be used as a learning guide, implementation reference, and interview revision sheet.
 
+
+## Focused Deep Dives
+
+- [AWS Lambda Deep Dive](./lambda-deep-dive.md) — creation, triggers, layers, Step Functions, API Gateway, Lambda@Edge, SAM, performance tuning, and operational guidance.
+
 ## Animated Workflow Overview
 
 ```mermaid

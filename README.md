@@ -2,26 +2,38 @@
 <pre>
 ┌──────────────────────────────────────────────────────────────────────┐
 │                                                                      │
-│      _    _ _      ____   ____ _                 _                   │
-│     / \  | | |    / ___| / ___| | ___  _   _  __| |                  │
-│    / _ \ | | |   | |    | |   | |/ _ \| | | |/ _` |                  │
-│   / ___ \| | |___| |___ | |___| | (_) | |_| | (_| |                  │
-│  /_/   \_\_|_____||\____| \____|_|\___/ \__,_|\__,_|                  │
+│   ____  _               _        _  __        __ ____                │
+│  / ___|| |__   __ _ ___(_)      / \ \ \      / // ___|               │
+│  \___ \| '_ \ / _` / __| |____ / _ \ \ \ /\ / / \___ \               │
+│   ___) | | | | (_| \__ \ |____/ ___ \ \ V  V /   ___) |              │
+│  |____/|_| |_|\__,_|___/_|   /_/   \_\ \_/\_/   |____/               │
+│                                                                      │
+│         Comprehensive AWS Guide  —  Basic to Advanced                │
 │                                                                      │
 ├──────────────────────────────────────────────────────────────────────┤
-│  Console  : AWS-Cloud-Engineer     Track   : Basic → Advanced        │
-│  Provider : Amazon Web Services    Modules : 13 topic guides         │
-│  Services : EC2, VPC, IAM, RDS, S3, Lambda, EKS, CloudWatch...       │
 │                                                                      │
-│  admin@aws-cloud:~$ aws sts get-caller-identity                      │
-│  Welcome to AWS Cloud Engineer Guide!                                │
+│   Provider : Amazon Web Services     Region  : Global                │
+│   Services : EC2, VPC, RDS, S3...    Modules : 13+                   │
+│                                                                      │
+│   Last login: Tue Jun 3 11:19:46 2025 from github.com/ShasidharReddy │
+│                                                                      │
+├──────────────────────────────────────────────────────────────────────┤
+│                                                                      │
+│   admin@shasi-aws:~$ aws sts get-caller-identity                     │
+│                                                                      │
+│   Welcome to Shasi-AWS!                                              │
+│   Your complete AWS learning environment.                            │
+│                                                                      │
+│   Type 'ls' to explore modules. Happy learning!                      │
+│                                                                      │
 └──────────────────────────────────────────────────────────────────────┘
 </pre>
 </div>
 
-# AWS Cloud Engineer — Reference & Lab Notes
 
-A curated collection of AWS command references, architecture diagrams, scripts, and step-by-step guides covering core AWS services. Organized by topic — use this as a quick reference while working on AWS projects.
+# ☁️ Shasi-AWS — Comprehensive Guide (Basic → Advanced)
+
+Shasi-AWS is a curated collection of AWS command references, architecture diagrams, scripts, and step-by-step guides covering core AWS services from basic foundations to advanced implementation patterns.
 
 ---
 
@@ -29,7 +41,7 @@ A curated collection of AWS command references, architecture diagrams, scripts, 
 
 ```mermaid
 flowchart LR
-    Hub([AWS-Cloud-Engineer]):::hub
+    Hub([Shasi-AWS]):::hub
     subgraph Foundation_Layer[Foundation Layer]
         Architecture[Architecture]:::foundation
         Networking[Networking]:::foundation

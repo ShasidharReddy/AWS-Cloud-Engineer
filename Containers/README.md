@@ -4,6 +4,11 @@ A comprehensive field guide for AWS container platforms and adjacent services.
 
 This document covers decision-making, architecture, networking, security, storage, autoscaling, image management, deployment tooling, and operational guidance for Amazon ECS, Amazon EKS, AWS Fargate, Amazon ECR, AWS App Runner, and AWS Copilot CLI.
 
+
+## Focused Deep Dives
+
+- [Amazon EKS Deep Dive](./eks-deep-dive.md) — cluster creation, node groups, Fargate profiles, networking, load balancing, GitOps, security, monitoring, EKS Anywhere, and troubleshooting.
+
 ## Animated Workflow Overview
 
 ```mermaid
