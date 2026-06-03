@@ -74,6 +74,13 @@ flowchart TB
 | Security Groups | Instance or ENI level | Application allow-listing | Stateful and precise for workload traffic |
 | Network ACLs | Subnet level | Coarse stateless deny patterns | Use sparingly for subnet guardrails and explicit deny cases |
 
+## General principles across all steps
+- Prefer infrastructure as code after validating the initial pattern in a non-production account.
+- Apply tags early so cost and ownership reporting work from day one.
+- Document exception paths so teams know when they are allowed to diverge.
+- Review regional and compliance requirements before enabling new services globally.
+- Use CloudTrail, Config, and Access Analyzer outputs as evidence for control validation.
+
 ## Step 1: Prepare the organization management account
 
 ### Why this choice
@@ -88,11 +95,10 @@ aws sts get-caller-identity
 ```
 
 ### Implementation notes
-- Prefer infrastructure as code after validating the initial pattern in a non-production account.
-- Apply tags early so cost and ownership reporting work from day one.
-- Document exception paths so teams know when they are allowed to diverge.
-- Review regional and compliance requirements before enabling new services globally.
-- Use CloudTrail, Config, and Access Analyzer outputs as evidence for control validation.
+- Lock down the root user with hardware MFA and remove any long-lived access keys immediately.
+- Store break-glass procedures, alternate contacts, and billing ownership in a controlled runbook.
+- Treat the management account as administrative only and keep workloads out of it.
+
 
 ## Step 2: Enable AWS Organizations and all features
 
@@ -107,11 +113,10 @@ aws organizations list-policies --filter SERVICE_CONTROL_POLICY
 ```
 
 ### Implementation notes
-- Prefer infrastructure as code after validating the initial pattern in a non-production account.
-- Apply tags early so cost and ownership reporting work from day one.
-- Document exception paths so teams know when they are allowed to diverge.
-- Review regional and compliance requirements before enabling new services globally.
-- Use CloudTrail, Config, and Access Analyzer outputs as evidence for control validation.
+- Finalize the initial OU plan before attaching policies so inheritance stays predictable.
+- Confirm trusted access requirements for Control Tower and delegated admin services before rollout.
+- Expect feature activation to take time and validate organization state before the next step.
+
 
 ## Step 3: Deploy AWS Control Tower
 
@@ -126,11 +131,10 @@ aws controltower list-enabled-controls --target-identifier arn:aws:organizations
 ```
 
 ### Implementation notes
-- Prefer infrastructure as code after validating the initial pattern in a non-production account.
-- Apply tags early so cost and ownership reporting work from day one.
-- Document exception paths so teams know when they are allowed to diverge.
-- Review regional and compliance requirements before enabling new services globally.
-- Use CloudTrail, Config, and Access Analyzer outputs as evidence for control validation.
+- Start with mandatory guardrails first, then add elective controls based on risk and operations capacity.
+- Review supported regions, existing accounts, and landing zone prerequisites before enrollment.
+- Document any Control Tower customizations so upgrades remain supportable.
+
 
 ## Step 4: Create core organizational units
 
@@ -146,11 +150,10 @@ aws organizations create-organizational-unit --parent-id r-example --name Sandbo
 ```
 
 ### Implementation notes
-- Prefer infrastructure as code after validating the initial pattern in a non-production account.
-- Apply tags early so cost and ownership reporting work from day one.
-- Document exception paths so teams know when they are allowed to diverge.
-- Review regional and compliance requirements before enabling new services globally.
-- Use CloudTrail, Config, and Access Analyzer outputs as evidence for control validation.
+- Use names that reflect trust boundaries and ownership instead of short-lived project names.
+- Keep OU nesting shallow so policy inheritance is easy to explain and audit.
+- Separate sandbox or exception-heavy environments from production-oriented OUs early.
+
 
 ## Step 5: Provision foundational accounts
 
@@ -166,11 +169,10 @@ aws organizations create-account --email shared-services@example.com --account-n
 ```
 
 ### Implementation notes
-- Prefer infrastructure as code after validating the initial pattern in a non-production account.
-- Apply tags early so cost and ownership reporting work from day one.
-- Document exception paths so teams know when they are allowed to diverge.
-- Review regional and compliance requirements before enabling new services globally.
-- Use CloudTrail, Config, and Access Analyzer outputs as evidence for control validation.
+- Reserve unique email aliases and owner metadata for every shared account before creation.
+- Stand up log archive and security tooling accounts before onboarding application teams.
+- Apply tighter network and console access controls to shared service accounts than to workload accounts.
+
 
 ## Step 6: Move accounts into target OUs
 
@@ -185,11 +187,10 @@ aws organizations move-account --account-id 222222222222 --source-parent-id r-ex
 ```
 
 ### Implementation notes
-- Prefer infrastructure as code after validating the initial pattern in a non-production account.
-- Apply tags early so cost and ownership reporting work from day one.
-- Document exception paths so teams know when they are allowed to diverge.
-- Review regional and compliance requirements before enabling new services globally.
-- Use CloudTrail, Config, and Access Analyzer outputs as evidence for control validation.
+- Review inherited SCPs before each move so existing workloads do not lose required permissions.
+- Move accounts in small batches and validate access, logging, and deployment pipelines after each batch.
+- Record source OU, destination OU, and approver details for account placement changes.
+
 
 ## Step 7: Set up IAM Identity Center
 
@@ -204,11 +205,10 @@ aws sso-admin list-permission-sets --instance-arn arn:aws:sso:::instance/ssoins-
 ```
 
 ### Implementation notes
-- Prefer infrastructure as code after validating the initial pattern in a non-production account.
-- Apply tags early so cost and ownership reporting work from day one.
-- Document exception paths so teams know when they are allowed to diverge.
-- Review regional and compliance requirements before enabling new services globally.
-- Use CloudTrail, Config, and Access Analyzer outputs as evidence for control validation.
+- Integrate the authoritative identity source first so workforce joins and departures stay centralized.
+- Enforce MFA and session duration standards that match the privilege level of each role.
+- Prefer group-based access assignments so account growth does not create manual identity drift.
+
 
 ## Step 8: Create permission sets and assignments
 
@@ -223,11 +223,10 @@ aws sso-admin create-account-assignment --instance-arn arn:aws:sso:::instance/ss
 ```
 
 ### Implementation notes
-- Prefer infrastructure as code after validating the initial pattern in a non-production account.
-- Apply tags early so cost and ownership reporting work from day one.
-- Document exception paths so teams know when they are allowed to diverge.
-- Review regional and compliance requirements before enabling new services globally.
-- Use CloudTrail, Config, and Access Analyzer outputs as evidence for control validation.
+- Model permission sets around job functions such as platform admin, audit, and developer rather than per-account roles.
+- Use smaller customer-managed policies when managed policies are too broad for a role.
+- Test assignments in non-production accounts before granting them in production OUs.
+
 
 ## Step 9: Design the IP plan and route domains
 
@@ -242,11 +241,10 @@ aws ec2 describe-vpcs
 ```
 
 ### Implementation notes
-- Prefer infrastructure as code after validating the initial pattern in a non-production account.
-- Apply tags early so cost and ownership reporting work from day one.
-- Document exception paths so teams know when they are allowed to diverge.
-- Review regional and compliance requirements before enabling new services globally.
-- Use CloudTrail, Config, and Access Analyzer outputs as evidence for control validation.
+- Reserve non-overlapping CIDR ranges by region and environment with growth space for future VPCs.
+- Keep hybrid, shared services, and workload route domains documented in a single network source of truth.
+- Allocate managed prefix lists for common corporate ranges so updates do not require per-rule edits.
+
 
 ## Step 10: Create the Transit Gateway hub
 
@@ -261,11 +259,10 @@ aws ram create-resource-share --name tgw-share --allow-external-principals false
 ```
 
 ### Implementation notes
-- Prefer infrastructure as code after validating the initial pattern in a non-production account.
-- Apply tags early so cost and ownership reporting work from day one.
-- Document exception paths so teams know when they are allowed to diverge.
-- Review regional and compliance requirements before enabling new services globally.
-- Use CloudTrail, Config, and Access Analyzer outputs as evidence for control validation.
+- Disable default route table association and propagation so each attachment is placed deliberately.
+- Create separate TGW route tables for production, shared services, and sandbox trust zones.
+- Track TGW data processing and attachment costs because the hub becomes a shared platform charge.
+
 
 ## Step 11: Share the Transit Gateway with workload accounts
 
@@ -280,11 +277,10 @@ aws ram get-resource-shares --resource-owner SELF
 ```
 
 ### Implementation notes
-- Prefer infrastructure as code after validating the initial pattern in a non-production account.
-- Apply tags early so cost and ownership reporting work from day one.
-- Document exception paths so teams know when they are allowed to diverge.
-- Review regional and compliance requirements before enabling new services globally.
-- Use CloudTrail, Config, and Access Analyzer outputs as evidence for control validation.
+- Share the TGW only with intended OUs or account IDs and avoid overly broad principals.
+- Require attachment naming and tagging standards so central networking teams can trace ownership quickly.
+- Decide whether attachment acceptance stays manual or automated before teams begin onboarding.
+
 
 ## Step 12: Build the centralized egress VPC
 
@@ -300,11 +296,10 @@ aws ec2 create-route-table --vpc-id vpc-egress
 ```
 
 ### Implementation notes
-- Prefer infrastructure as code after validating the initial pattern in a non-production account.
-- Apply tags early so cost and ownership reporting work from day one.
-- Document exception paths so teams know when they are allowed to diverge.
-- Review regional and compliance requirements before enabling new services globally.
-- Use CloudTrail, Config, and Access Analyzer outputs as evidence for control validation.
+- Place NAT and inspection paths in multiple Availability Zones so egress stays available during zonal failure.
+- Separate public, inspection, and private routing tiers to make traffic flow and troubleshooting clearer.
+- Estimate NAT Gateway and data processing cost early because central egress can become a large shared bill.
+
 
 ## Step 13: Add inspection and centralized outbound policy
 
@@ -319,11 +314,10 @@ aws network-firewall create-firewall --firewall-name central-egress --firewall-p
 ```
 
 ### Implementation notes
-- Prefer infrastructure as code after validating the initial pattern in a non-production account.
-- Apply tags early so cost and ownership reporting work from day one.
-- Document exception paths so teams know when they are allowed to diverge.
-- Review regional and compliance requirements before enabling new services globally.
-- Use CloudTrail, Config, and Access Analyzer outputs as evidence for control validation.
+- Keep routes symmetric through the inspection path so stateful firewalls see both directions of traffic.
+- Tune rule groups for approved destinations, threat feeds, and logging before enforcing broad denies.
+- Send firewall alerts and flow logs to a central analysis workflow so blocked traffic is actionable.
+
 
 ## Step 14: Create workload VPCs per account and environment
 
@@ -339,11 +333,10 @@ aws ec2 modify-vpc-attribute --vpc-id vpc-workload --enable-dns-hostnames
 ```
 
 ### Implementation notes
-- Prefer infrastructure as code after validating the initial pattern in a non-production account.
-- Apply tags early so cost and ownership reporting work from day one.
-- Document exception paths so teams know when they are allowed to diverge.
-- Review regional and compliance requirements before enabling new services globally.
-- Use CloudTrail, Config, and Access Analyzer outputs as evidence for control validation.
+- Use a standard subnet layout for application, data, and attachment tiers so every account looks familiar.
+- Enable DNS hostnames and flow logs by default as part of the VPC creation baseline.
+- Keep production and non-production VPC ranges distinct to simplify routing and incident response.
+
 
 ## Step 15: Attach workload VPCs to Transit Gateway
 
@@ -358,11 +351,10 @@ aws ec2 enable-transit-gateway-route-table-propagation --transit-gateway-route-t
 ```
 
 ### Implementation notes
-- Prefer infrastructure as code after validating the initial pattern in a non-production account.
-- Apply tags early so cost and ownership reporting work from day one.
-- Document exception paths so teams know when they are allowed to diverge.
-- Review regional and compliance requirements before enabling new services globally.
-- Use CloudTrail, Config, and Access Analyzer outputs as evidence for control validation.
+- Use dedicated attachment subnets and avoid reusing application subnets for TGW connectivity.
+- Map each attachment to the correct TGW route table explicitly instead of relying on defaults.
+- Validate propagation and return routes from both the spoke and hub perspectives before declaring success.
+
 
 ## Step 16: Configure centralized DNS with Route 53 private hosted zones
 
@@ -377,11 +369,10 @@ aws route53 change-resource-record-sets --hosted-zone-id ZPRIVATE123 --change-ba
 ```
 
 ### Implementation notes
-- Prefer infrastructure as code after validating the initial pattern in a non-production account.
-- Apply tags early so cost and ownership reporting work from day one.
-- Document exception paths so teams know when they are allowed to diverge.
-- Review regional and compliance requirements before enabling new services globally.
-- Use CloudTrail, Config, and Access Analyzer outputs as evidence for control validation.
+- Adopt a clear internal naming convention so private zones do not conflict with on-premises namespaces.
+- Restrict hosted zone change permissions to a small platform group and publish a record request workflow.
+- Track every VPC association so teams understand which zones are authoritative in each account.
+
 
 ## Step 17: Enable Route 53 Resolver endpoints and forwarding
 
@@ -396,11 +387,10 @@ aws route53resolver associate-resolver-rule --resolver-rule-id rslvr-rr-123 --vp
 ```
 
 ### Implementation notes
-- Prefer infrastructure as code after validating the initial pattern in a non-production account.
-- Apply tags early so cost and ownership reporting work from day one.
-- Document exception paths so teams know when they are allowed to diverge.
-- Review regional and compliance requirements before enabling new services globally.
-- Use CloudTrail, Config, and Access Analyzer outputs as evidence for control validation.
+- Deploy inbound and outbound endpoints across multiple subnets and Availability Zones for resilience.
+- Coordinate conditional forwarding rules, TTL expectations, and ownership with external DNS teams.
+- Protect resolver endpoints with tightly scoped security groups because they expose shared DNS paths.
+
 
 ## Step 18: Standardize security groups and prefix lists
 
@@ -415,11 +405,10 @@ aws ec2 get-managed-prefix-list-entries --prefix-list-id pl-corp-ranges
 ```
 
 ### Implementation notes
-- Prefer infrastructure as code after validating the initial pattern in a non-production account.
-- Apply tags early so cost and ownership reporting work from day one.
-- Document exception paths so teams know when they are allowed to diverge.
-- Review regional and compliance requirements before enabling new services globally.
-- Use CloudTrail, Config, and Access Analyzer outputs as evidence for control validation.
+- Prefer security group references for service-to-service access instead of copying CIDRs into every rule.
+- Version managed prefix lists so teams can review and roll back network allow-list changes safely.
+- Keep shared group patterns small and purposeful to avoid creating opaque all-purpose firewall rules.
+
 
 ## Step 19: Apply service control policies
 
@@ -435,11 +424,10 @@ aws organizations attach-policy --policy-id p-example2 --target-id ou-sandbox
 ```
 
 ### Implementation notes
-- Prefer infrastructure as code after validating the initial pattern in a non-production account.
-- Apply tags early so cost and ownership reporting work from day one.
-- Document exception paths so teams know when they are allowed to diverge.
-- Review regional and compliance requirements before enabling new services globally.
-- Use CloudTrail, Config, and Access Analyzer outputs as evidence for control validation.
+- Start with organization-wide deny rules for only the actions that should never be allowed.
+- Test SCP inheritance in a sandbox OU before attaching new policies to workload OUs.
+- Publish exception handling for services such as region expansion or incident response tooling before enforcement.
+
 
 ## Step 20: Enable organization-wide CloudTrail
 
@@ -454,11 +442,10 @@ aws cloudtrail put-event-selectors --trail-name org-trail --advanced-event-selec
 ```
 
 ### Implementation notes
-- Prefer infrastructure as code after validating the initial pattern in a non-production account.
-- Apply tags early so cost and ownership reporting work from day one.
-- Document exception paths so teams know when they are allowed to diverge.
-- Review regional and compliance requirements before enabling new services globally.
-- Use CloudTrail, Config, and Access Analyzer outputs as evidence for control validation.
+- Select management, data, and insight events deliberately so audit coverage is strong without runaway cost.
+- Protect the log archive bucket with tight write permissions and immutable retention where required.
+- Verify log file validation and cross-account delivery paths as part of the trail acceptance check.
+
 
 ## Step 21: Enable AWS Config and aggregator
 
@@ -473,11 +460,10 @@ aws configservice put-configuration-aggregator --configuration-aggregator-name o
 ```
 
 ### Implementation notes
-- Prefer infrastructure as code after validating the initial pattern in a non-production account.
-- Apply tags early so cost and ownership reporting work from day one.
-- Document exception paths so teams know when they are allowed to diverge.
-- Review regional and compliance requirements before enabling new services globally.
-- Use CloudTrail, Config, and Access Analyzer outputs as evidence for control validation.
+- Confirm every account has a recorder, delivery channel, and required service-linked roles before aggregation.
+- Scope rules and conformance packs to the controls you will actually act on so signal stays usable.
+- Review region coverage intentionally because Config costs and support vary by resource type.
+
 
 ## Step 22: Enable KMS governance
 
@@ -492,11 +478,10 @@ aws kms enable-key-rotation --key-id 1234abcd-12ab-34cd-56ef-1234567890ab
 ```
 
 ### Implementation notes
-- Prefer infrastructure as code after validating the initial pattern in a non-production account.
-- Apply tags early so cost and ownership reporting work from day one.
-- Document exception paths so teams know when they are allowed to diverge.
-- Review regional and compliance requirements before enabling new services globally.
-- Use CloudTrail, Config, and Access Analyzer outputs as evidence for control validation.
+- Prefer explicit key policies and grants so key administration is separated from key usage.
+- Standardize alias naming, rotation expectations, and deletion protection for critical keys.
+- Plan for multi-Region keys only where replication or failover requirements justify the added complexity.
+
 
 ## Step 23: Centralize security findings
 
@@ -511,11 +496,10 @@ aws accessanalyzer create-analyzer --analyzer-name org-external-access --type OR
 ```
 
 ### Implementation notes
-- Prefer infrastructure as code after validating the initial pattern in a non-production account.
-- Apply tags early so cost and ownership reporting work from day one.
-- Document exception paths so teams know when they are allowed to diverge.
-- Review regional and compliance requirements before enabling new services globally.
-- Use CloudTrail, Config, and Access Analyzer outputs as evidence for control validation.
+- Designate delegated administrators once so GuardDuty, Security Hub, and Access Analyzer roll up consistently.
+- Tune severity mappings and suppression rules to reduce alert fatigue before broad rollout.
+- Integrate findings with ticketing, chat, or SIEM workflows so response ownership is clear.
+
 
 ## Step 24: Create account onboarding and lifecycle standards
 
@@ -530,11 +514,10 @@ aws iam list-roles
 ```
 
 ### Implementation notes
-- Prefer infrastructure as code after validating the initial pattern in a non-production account.
-- Apply tags early so cost and ownership reporting work from day one.
-- Document exception paths so teams know when they are allowed to diverge.
-- Review regional and compliance requirements before enabling new services globally.
-- Use CloudTrail, Config, and Access Analyzer outputs as evidence for control validation.
+- Publish a checklist that covers required tags, roles, network attachment, logging, and backup expectations.
+- Block production onboarding until baseline controls and owner metadata are present in the new account.
+- Define suspension and decommission steps so dormant accounts do not retain unnecessary access or spend.
+
 
 ## Sample Service Control Policy Patterns
 ### Restrict unsupported regions

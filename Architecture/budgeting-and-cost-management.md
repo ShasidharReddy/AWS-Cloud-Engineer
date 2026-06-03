@@ -3,6 +3,10 @@
 ## Goal
 Create a repeatable cost management process that combines budgets, alerts, tagging, commitments, service-level optimization, and FinOps operating rhythms.
 
+## General cost management principles
+- Tie every cost decision back to a business owner, an environment, and an automation action.
+- Cost controls work best when they are transparent, measurable, and designed into provisioning workflows.
+
 ## Cost Explorer and AWS Budgets Setup
 ### Step 1: Enable Cost Explorer
 Why this choice: Cost Explorer is the native baseline for historical spend, usage trends, and Savings Plans recommendations.
@@ -111,9 +115,10 @@ aws ce get-cost-and-usage --time-period Start=2025-01-01,End=2025-02-01 --granul
 ```
 
 ### Why this choice
-- Use monthly and daily views to detect seasonality, then pivot by linked account, service, and tag to identify the real cost owner.
-- Tie every cost decision back to a business owner, an environment, and an automation action.
-- Cost controls work best when they are transparent, measurable, and designed into provisioning workflows.
+- Save common views by account, service, and tag so investigation starts from the same baseline every time.
+- Compare unblended, amortized, and usage views before making commitment or chargeback decisions.
+- Review daily spikes alongside monthly trends so anomalies are not hidden by averages.
+
 
 ## Budget design patterns
 Create a hierarchy of budgets: account budget, environment budget, high-cost service budget, and project or launch budget.
@@ -124,9 +129,10 @@ aws budgets describe-budgets --account-id 123456789012
 ```
 
 ### Why this choice
-- Create a hierarchy of budgets: account budget, environment budget, high-cost service budget, and project or launch budget.
-- Tie every cost decision back to a business owner, an environment, and an automation action.
-- Cost controls work best when they are transparent, measurable, and designed into provisioning workflows.
+- Set multiple thresholds such as warning, action, and hard-stop levels instead of a single alarm point.
+- Separate shared platform budgets from product budgets so owners can act on the signal they receive.
+- Use usage budgets for known cost drivers like NAT data, requests, or hours when spend is a late indicator.
+
 
 ## SNS notification strategy
 Keep one SNS topic per audience or severity so engineers, finance, and platform teams get the right signal without noise.
@@ -137,9 +143,10 @@ aws sns list-subscriptions-by-topic --topic-arn arn:aws:sns:us-east-1:1234567890
 ```
 
 ### Why this choice
-- Keep one SNS topic per audience or severity so engineers, finance, and platform teams get the right signal without noise.
-- Tie every cost decision back to a business owner, an environment, and an automation action.
-- Cost controls work best when they are transparent, measurable, and designed into provisioning workflows.
+- Send lower-severity alerts to chat or email and reserve paging tools for expensive production exceptions.
+- Filter subscriptions by audience so finance, platform, and service owners receive only relevant messages.
+- Keep topic ownership and escalation paths documented because alert fatigue is usually an operations design issue.
+
 
 ## Lambda remediation patterns
 Use Lambda for stoppable actions such as EC2 stop, ASG scale down, EKS node group reduction, or ticket creation when manual approval is required.
@@ -150,9 +157,10 @@ aws lambda invoke --function-name finops-auto-stop budget-event-response.json
 ```
 
 ### Why this choice
-- Use Lambda for stoppable actions such as EC2 stop, ASG scale down, EKS node group reduction, or ticket creation when manual approval is required.
-- Tie every cost decision back to a business owner, an environment, and an automation action.
-- Cost controls work best when they are transparent, measurable, and designed into provisioning workflows.
+- Limit automated stop or scale-down actions to preapproved nonproduction resources and reversible changes.
+- Add exception tags, dry-run logging, and owner notifications before enabling enforced automation.
+- Use least-privilege execution roles so remediation functions cannot mutate unrelated services.
+
 
 ## Savings Plans strategy
 Cover the steady baseline first, review utilization monthly, and avoid overcommitting volatile seasonal demand.
@@ -163,9 +171,10 @@ aws ce get-savings-plans-utilization --time-period Start=2025-01-01,End=2025-02-
 ```
 
 ### Why this choice
-- Cover the steady baseline first, review utilization monthly, and avoid overcommitting volatile seasonal demand.
-- Tie every cost decision back to a business owner, an environment, and an automation action.
-- Cost controls work best when they are transparent, measurable, and designed into provisioning workflows.
+- Base commitment coverage on steady-state usage windows rather than short-lived launch or seasonal peaks.
+- Review utilization and recurring unused commitment monthly so coverage can be adjusted before waste accumulates.
+- Separate compute baselines that should be covered from experimental workloads that should stay on demand.
+
 
 ## Reserved capacity strategy
 Use reserved capacity when workload shape, region, and instance family are stable enough to justify a more rigid discount instrument.
@@ -176,9 +185,10 @@ aws ce get-reservation-utilization --time-period Start=2025-01-01,End=2025-02-01
 ```
 
 ### Why this choice
-- Use reserved capacity when workload shape, region, and instance family are stable enough to justify a more rigid discount instrument.
-- Tie every cost decision back to a business owner, an environment, and an automation action.
-- Cost controls work best when they are transparent, measurable, and designed into provisioning workflows.
+- Use reserved capacity when instance family, region, and license posture are stable enough to stay fixed.
+- Track renewal dates early so expired reservations do not quietly return workloads to on-demand rates.
+- Re-evaluate reservation scope whenever platform teams plan migrations, family changes, or regional expansion.
+
 
 ## Spot strategy
 Use Spot for stateless, queue-backed, or checkpoint-friendly jobs and make interruption handling a design requirement.
@@ -189,9 +199,10 @@ aws ec2 request-spot-fleet --spot-fleet-request-config file://spot-fleet.json
 ```
 
 ### Why this choice
-- Use Spot for stateless, queue-backed, or checkpoint-friendly jobs and make interruption handling a design requirement.
-- Tie every cost decision back to a business owner, an environment, and an automation action.
-- Cost controls work best when they are transparent, measurable, and designed into provisioning workflows.
+- Combine Spot with queues, checkpoints, or mixed instance groups so interruptions are operationally acceptable.
+- Define fallback capacity for critical jobs instead of assuming Spot markets will always remain deep enough.
+- Measure interruption rates per workload class before expanding Spot into new environments.
+
 
 ## Tag governance
 Enforce tags at provisioning time using IaC modules, policies, and account vending controls instead of retroactive cleanup only.
@@ -202,9 +213,10 @@ aws resourcegroupstaggingapi get-resources --tag-filters Key=Owner,Values=platfo
 ```
 
 ### Why this choice
-- Enforce tags at provisioning time using IaC modules, policies, and account vending controls instead of retroactive cleanup only.
-- Tie every cost decision back to a business owner, an environment, and an automation action.
-- Cost controls work best when they are transparent, measurable, and designed into provisioning workflows.
+- Enforce required tags in templates, service catalogs, and account vending workflows before resource creation.
+- Audit missing or malformed tag values on a cadence that owners can actually remediate.
+- Keep the tag dictionary small, clear, and tied to real reporting or automation outcomes.
+
 
 ## CUR analytics
 Land CUR in S3, catalog it, and query with Athena or ingest into a warehouse for detailed FinOps reporting.
@@ -215,9 +227,10 @@ aws cur describe-report-definitions
 ```
 
 ### Why this choice
-- Land CUR in S3, catalog it, and query with Athena or ingest into a warehouse for detailed FinOps reporting.
-- Tie every cost decision back to a business owner, an environment, and an automation action.
-- Cost controls work best when they are transparent, measurable, and designed into provisioning workflows.
+- Partition and catalog CUR data so Athena or warehouse queries stay fast as billing volume grows.
+- Normalize account, tag, and discount fields before building dashboards so teams see consistent cost dimensions.
+- Use CUR as the detailed source for chargeback and anomaly analysis, not just as a raw archive.
+
 
 ## EC2 optimization
 Right-size regularly, retire old generations, and evaluate Graviton adoption because compute usually represents the biggest optimization pool.
@@ -228,9 +241,10 @@ aws ec2 describe-instances --filters Name=instance-state-name,Values=running
 ```
 
 ### Why this choice
-- Right-size regularly, retire old generations, and evaluate Graviton adoption because compute usually represents the biggest optimization pool.
-- Tie every cost decision back to a business owner, an environment, and an automation action.
-- Cost controls work best when they are transparent, measurable, and designed into provisioning workflows.
+- Use utilization evidence and Compute Optimizer recommendations before rightsizing production fleets.
+- Review orphaned volumes, stale AMIs, and idle instances in the same cycle as compute tuning.
+- Track Graviton migration blockers explicitly because architecture debt often hides inside licensing or image pipelines.
+
 
 ## S3 optimization
 Apply lifecycle policies, remove incomplete multipart uploads, and choose storage classes based on measured access behavior.
@@ -241,9 +255,10 @@ aws s3api get-bucket-lifecycle-configuration --bucket enterprise-data
 ```
 
 ### Why this choice
-- Apply lifecycle policies, remove incomplete multipart uploads, and choose storage classes based on measured access behavior.
-- Tie every cost decision back to a business owner, an environment, and an automation action.
-- Cost controls work best when they are transparent, measurable, and designed into provisioning workflows.
+- Review request patterns and incomplete multipart uploads in addition to storage class mix.
+- Apply lifecycle rules with restore drills so archived data stays usable when teams actually need it.
+- Watch small-object overhead and retrieval patterns before assuming a colder class will save money.
+
 
 ## NAT Gateway reduction
 Add gateway endpoints for S3 and DynamoDB, interface endpoints for AWS APIs, and prefer private dependency paths to shrink data processing charges.
@@ -254,9 +269,10 @@ aws ec2 describe-nat-gateways
 ```
 
 ### Why this choice
-- Add gateway endpoints for S3 and DynamoDB, interface endpoints for AWS APIs, and prefer private dependency paths to shrink data processing charges.
-- Tie every cost decision back to a business owner, an environment, and an automation action.
-- Cost controls work best when they are transparent, measurable, and designed into provisioning workflows.
+- Identify the highest data-processing sources by subnet and account before redesigning outbound paths.
+- Use gateway or interface endpoints for chatty AWS traffic so NAT becomes the exception, not the default path.
+- Check package mirrors, proxy paths, and image pulls because they often dominate hidden NAT spend.
+
 
 ## EKS cost control
 Right-size requests and limits, consolidate underutilized clusters, and watch per-cluster add-on sprawl.
@@ -267,9 +283,10 @@ aws eks list-clusters
 ```
 
 ### Why this choice
-- Right-size requests and limits, consolidate underutilized clusters, and watch per-cluster add-on sprawl.
-- Tie every cost decision back to a business owner, an environment, and an automation action.
-- Cost controls work best when they are transparent, measurable, and designed into provisioning workflows.
+- Tune requests, limits, and autoscaling together so node waste is not created by conservative defaults.
+- Review node groups, load balancers, and add-ons per cluster because idle control-plane-adjacent spend adds up quickly.
+- Measure cost per namespace or environment to expose tenants that drive disproportionate cluster spend.
+
 
 ## Data transfer awareness
 Architect around data gravity and avoid unnecessary cross-AZ or cross-region chatter in chatty application tiers.
@@ -280,9 +297,10 @@ aws ce get-cost-and-usage --time-period Start=2025-01-01,End=2025-02-01 --granul
 ```
 
 ### Why this choice
-- Architect around data gravity and avoid unnecessary cross-AZ or cross-region chatter in chatty application tiers.
-- Tie every cost decision back to a business owner, an environment, and an automation action.
-- Cost controls work best when they are transparent, measurable, and designed into provisioning workflows.
+- Measure inter-AZ, internet egress, and cross-region flows by application path instead of only by service totals.
+- Co-locate chatty tiers when resilience requirements allow so architecture does not pay for avoidable network hops.
+- Use CloudFront, PrivateLink, or caching layers where they reduce repeated expensive transfer paths.
+
 
 ## FinOps operating check 1
 - Check 1: review tagged spend, budget thresholds, and anomaly exceptions for the owning team.
